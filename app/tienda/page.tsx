@@ -31,23 +31,15 @@ async function getData(page: number) {
   return await client.fetch(query, { start, end })
 }
 
+export const dynamic = "force-dynamic"
+
 export default async function TiendaPage({
   searchParams,
 }: {
   searchParams: { page?: string }
 }) {
-  // Await searchParams if necessary (Next.js 15+ patterns sometimes require it, but 14 is sync usually. 
-  // To be safe and compatible with recent strictness, we just access it. 
-  // Note: IF this project is Next.js 15, searchParams is async. The user didn't specify version but 'params' in page.tsx was async in my previous helpful fix.
-  // I will treat it as potentially async to be safe, but typically in 14 it's a prop.
-  // Let's assume standard prop access for now, but if it fails I'll patch it. 
-  // Actually, simplest is to await it if it's a promise, but TS might complain if it isn't.
-  // I'll just use it directly for now as per standard Text.js 13/14 examples unless I see errors.
-
-  // Wait, previous file `app/producto/[slug]/page.tsx` I treated params as awaitable.
-  // Let's resolve specific page number.
-
-  const currentPage = Number(searchParams?.page) || 1
+  const params = await Promise.resolve(searchParams) // Handle potentially async params
+  const currentPage = Number(params?.page) || 1
   const { total, products, globalConfig } = await getData(currentPage)
   const totalPages = Math.ceil(total / PRODUCTS_PER_PAGE)
 
@@ -95,39 +87,79 @@ export default async function TiendaPage({
 
                   {/* Pagination */}
                   {totalPages > 1 && (
-                    <div className="flex justify-center items-center gap-4">
+                    <div className="flex justify-center items-center gap-2">
+                      {/* Prev Button */}
                       {currentPage > 1 ? (
                         <Link
                           href={`/tienda?page=${currentPage - 1}`}
-                          className="flex items-center gap-2 px-4 py-2 border border-border rounded-lg hover:bg-muted transition-colors"
+                          className="flex items-center justify-center w-10 h-10 border border-border rounded-lg hover:bg-muted transition-colors"
+                          aria-label="Página anterior"
                         >
                           <ChevronLeftIcon className="w-4 h-4" />
-                          Anterior
                         </Link>
                       ) : (
-                        <button disabled className="flex items-center gap-2 px-4 py-2 border border-border rounded-lg opacity-50 cursor-not-allowed">
+                        <span className="flex items-center justify-center w-10 h-10 border border-border rounded-lg opacity-50 cursor-not-allowed">
                           <ChevronLeftIcon className="w-4 h-4" />
-                          Anterior
-                        </button>
+                        </span>
                       )}
 
-                      <span className="text-sm font-medium">
-                        Página {currentPage} de {totalPages}
-                      </span>
+                      {/* Page Numbers */}
+                      {(() => {
+                        const pages = [];
+                        const maxVisiblePages = 5;
 
+                        if (totalPages <= maxVisiblePages) {
+                          // Show all pages if total is small
+                          for (let i = 1; i <= totalPages; i++) {
+                            pages.push(i);
+                          }
+                        } else {
+                          // More pages than we want to show, handle truncation
+                          if (currentPage <= 3) {
+                            // Close to beginning: 1, 2, 3, ..., N
+                            pages.push(1, 2, 3, '...', totalPages);
+                          } else if (currentPage >= totalPages - 2) {
+                            // Close to end: 1, ..., N-2, N-1, N
+                            pages.push(1, '...', totalPages - 2, totalPages - 1, totalPages);
+                          } else {
+                            // Middle: 1, ..., C-1, C, C+1, ..., N
+                            pages.push(1, '...', currentPage - 1, currentPage, currentPage + 1, '...', totalPages);
+                          }
+                        }
+
+                        return pages.map((page, index) => (
+                          typeof page === 'number' ? (
+                            <Link
+                              key={index}
+                              href={`/tienda?page=${page}`}
+                              className={`flex items-center justify-center w-10 h-10 rounded-lg text-sm font-medium transition-colors ${currentPage === page
+                                ? "bg-primary text-primary-foreground"
+                                : "border border-border hover:bg-muted"
+                                }`}
+                            >
+                              {page}
+                            </Link>
+                          ) : (
+                            <span key={index} className="flex items-center justify-center w-10 h-10 text-muted-foreground">
+                              ...
+                            </span>
+                          )
+                        ));
+                      })()}
+
+                      {/* Next Button */}
                       {currentPage < totalPages ? (
                         <Link
                           href={`/tienda?page=${currentPage + 1}`}
-                          className="flex items-center gap-2 px-4 py-2 border border-border rounded-lg hover:bg-muted transition-colors"
+                          className="flex items-center justify-center w-10 h-10 border border-border rounded-lg hover:bg-muted transition-colors"
+                          aria-label="Página siguiente"
                         >
-                          Siguiente
                           <ChevronRightIcon className="w-4 h-4" />
                         </Link>
                       ) : (
-                        <button disabled className="flex items-center gap-2 px-4 py-2 border border-border rounded-lg opacity-50 cursor-not-allowed">
-                          Siguiente
+                        <span className="flex items-center justify-center w-10 h-10 border border-border rounded-lg opacity-50 cursor-not-allowed">
                           <ChevronRightIcon className="w-4 h-4" />
-                        </button>
+                        </span>
                       )}
                     </div>
                   )}
