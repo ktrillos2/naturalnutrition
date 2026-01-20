@@ -1,0 +1,148 @@
+import Link from "next/link"
+import Image from "next/image"
+import { MapPinIcon, PhoneIcon, EnvelopeIcon, FacebookIcon, InstagramIcon, WhatsAppIcon } from "./icons"
+import { urlFor } from "@/sanity/lib/image"
+
+const navLinks = [
+  { href: "/", label: "Inicio" },
+  { href: "/tienda", label: "Tienda" },
+  { href: "/nosotros", label: "Nosotros" },
+  { href: "/contacto", label: "Contacto" },
+]
+
+interface FooterProps {
+  data?: {
+    logo?: any
+    footerDescription?: string
+    contactInfo?: {
+      address?: string
+      phones?: string[]
+      emails?: string[]
+      whatsapp?: string
+    }
+    socialLinks?: { platform: string; url: string }[]
+  }
+}
+
+export function Footer({ data }: FooterProps) {
+  const socials = data?.socialLinks || [];
+
+  const getSocialIcon = (platform: string) => {
+    switch (platform.toLowerCase()) {
+      case 'facebook': return FacebookIcon;
+      case 'instagram': return InstagramIcon;
+      case 'whatsapp': return WhatsAppIcon;
+      default: return FacebookIcon;
+    }
+  }
+
+  return (
+    <footer className="bg-primary text-primary-foreground">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12 lg:py-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-12">
+          <div className="lg:col-span-1">
+            <Link href="/" className="inline-block mb-4">
+              {data?.logo ? (
+                <img
+                  src={urlFor(data.logo).url()}
+                  alt={data.logo.alt || "Natural Nutrition"}
+                  className="h-12 w-auto brightness-0 invert object-contain"
+                />
+              ) : (
+                <Image
+                  src="/images/logo.png"
+                  alt="Natural Nutrition"
+                  width={160}
+                  height={53}
+                  className="h-12 w-auto brightness-0 invert"
+                />
+              )}
+            </Link>
+            <p className="text-sm text-primary-foreground/80 leading-relaxed mb-6">
+              {data?.footerDescription || "Tu tienda de confianza para productos naturales, suplementos y fitoterapéuticos de alta calidad."}
+            </p>
+            <div className="flex items-center gap-4">
+              {socials.map((social, idx) => {
+                const Icon = getSocialIcon(social.platform);
+                return (
+                  <a
+                    key={idx}
+                    href={social.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-10 h-10 bg-primary-foreground/10 rounded-full flex items-center justify-center hover:bg-primary-foreground/20 transition-colors"
+                    aria-label={social.platform}
+                  >
+                    <Icon className="w-5 h-5" />
+                  </a>
+                )
+              })}
+              {socials.length === 0 && (
+                <>
+                  {/* Default social links fallback if none provided */}
+                  <a href="#" className="w-10 h-10 bg-primary-foreground/10 rounded-full flex items-center justify-center"><FacebookIcon className="w-5 h-5" /></a>
+                </>
+              )}
+            </div>
+          </div>
+
+          <div>
+            <h3 className="text-sm font-semibold uppercase tracking-wider mb-4">Menú</h3>
+            <ul className="space-y-3">
+              {navLinks.map((link) => (
+                <li key={link.href}>
+                  <Link
+                    href={link.href}
+                    className="text-sm text-primary-foreground/80 hover:text-primary-foreground transition-colors"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Contact */}
+          <div>
+            <h3 className="text-sm font-semibold uppercase tracking-wider mb-4">Contacto</h3>
+            <ul className="space-y-4">
+              <li className="flex items-start gap-3">
+                <MapPinIcon className="w-5 h-5 text-accent shrink-0 mt-0.5" />
+                <span className="text-sm text-primary-foreground/80">{data?.contactInfo?.address || "CRA 28 No. 84-58 Polo"}</span>
+              </li>
+              <li className="flex items-start gap-3">
+                <PhoneIcon className="w-5 h-5 text-accent shrink-0 mt-0.5" />
+                <div className="text-sm text-primary-foreground/80">
+                  {data?.contactInfo?.phones?.map(p => <p key={p}>{p}</p>) || (
+                    <>
+                      <p>350 2138686</p>
+                      <p>601 749 8691</p>
+                    </>
+                  )}
+                </div>
+              </li>
+              <li className="flex items-start gap-3">
+                <EnvelopeIcon className="w-5 h-5 text-accent shrink-0 mt-0.5" />
+                <div className="text-sm text-primary-foreground/80">
+                  {data?.contactInfo?.emails?.map(e => <p key={e}>{e}</p>) || (
+                    <>
+                      <p>info@conasanatural.com</p>
+                      <p>coordinador@solarvit.com</p>
+                    </>
+                  )}
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        {/* Bottom */}
+        <div className="border-t border-primary-foreground/10 mt-10 pt-8 text-center">
+          <p className="text-sm text-primary-foreground/60">
+            © {new Date().getFullYear()} Natural Nutrición. Todos los derechos reservados.
+          </p>
+        </div>
+      </div>
+    </footer>
+  )
+}
