@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect } from "react"
 import { TopBar } from "@/components/top-bar"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
@@ -8,6 +8,12 @@ import { TruckIcon, CheckIcon } from "@/components/icons"
 import Link from "next/link"
 import { useCart } from "@/components/cart-provider"
 import colombiaData from "@/lib/colombia-locations.json"
+import { initMercadoPago, Wallet } from "@mercadopago/sdk-react"
+
+// Initialize Mercado Pago
+initMercadoPago(process.env.NEXT_PUBLIC_MP_PUBLIC_KEY || "", {
+  locale: 'es-CO'
+});
 
 const steps = [
   { id: 1, name: "Envío", icon: TruckIcon },
@@ -41,6 +47,17 @@ export default function CheckoutPage() {
   const [selectedDept, setSelectedDept] = useState("")
   const [selectedCity, setSelectedCity] = useState("")
 
+  // Checkout Form State
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    address: "",
+    phone: "",
+    email: "",
+  });
+
+  const [preferenceId, setPreferenceId] = useState<string | null>(null);
+
   const cities = useMemo(() => {
     const dept = colombiaData.find((d) => d.departamento === selectedDept)
     return dept ? dept.ciudades : []
@@ -51,6 +68,46 @@ export default function CheckoutPage() {
   // Assuming it returns a number or we calculate it from items.
   const subtotal = cartItems.reduce((sum, item) => sum + item.price * (item.quantity || 1), 0)
   const total = subtotal + shipping
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const createPreference = async () => {
+    try {
+      const response = await fetch("/api/checkout", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          items: cartItems.map(item => ({ ...item, quantity: item.quantity || 1 })),
+          payer: {
+            name: formData.firstName,
+            surname: formData.lastName,
+            email: formData.email,
+            phone: formData.phone,
+          }
+        }),
+      });
+
+      const data = await response.json();
+      if (data.id) {
+        setPreferenceId(data.id);
+      }
+    } catch (error) {
+      console.error("Error creating preference:", error);
+    }
+  };
+
+  // Create preference when moving to payment step
+  useEffect(() => {
+    if (currentStep === 2 && !preferenceId) {
+      createPreference();
+    }
+  }, [currentStep, preferenceId]);
+
 
   return (
     <div className="min-h-screen flex flex-col bg-secondary">
@@ -67,10 +124,10 @@ export default function CheckoutPage() {
                 >
                   <div
                     className={`w-10 h-10 rounded-full flex items-center justify-center ${currentStep > step.id
+                      ? "bg-primary text-primary-foreground"
+                      : currentStep === step.id
                         ? "bg-primary text-primary-foreground"
-                        : currentStep === step.id
-                          ? "bg-primary text-primary-foreground"
-                          : "bg-muted text-muted-foreground"
+                        : "bg-muted text-muted-foreground"
                       }`}
                   >
                     {currentStep > step.id ? <CheckIcon className="w-5 h-5" /> : <step.icon className="w-5 h-5" />}
@@ -137,6 +194,9 @@ export default function CheckoutPage() {
                             <label className="block text-sm font-medium text-foreground mb-1.5">Nombre</label>
                             <input
                               type="text"
+                              name="firstName"
+                              value={formData.firstName}
+                              onChange={handleInputChange}
                               className="w-full px-4 py-2.5 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                               placeholder="Tu nombre"
                             />
@@ -145,6 +205,9 @@ export default function CheckoutPage() {
                             <label className="block text-sm font-medium text-foreground mb-1.5">Apellido</label>
                             <input
                               type="text"
+                              name="lastName"
+                              value={formData.lastName}
+                              onChange={handleInputChange}
                               className="w-full px-4 py-2.5 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                               placeholder="Tu apellido"
                             />
@@ -154,6 +217,9 @@ export default function CheckoutPage() {
                           <label className="block text-sm font-medium text-foreground mb-1.5">Dirección</label>
                           <input
                             type="text"
+                            name="address"
+                            value={formData.address}
+                            onChange={handleInputChange}
                             className="w-full px-4 py-2.5 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                             placeholder="Calle, número, apartamento"
                           />
@@ -195,6 +261,9 @@ export default function CheckoutPage() {
                             <label className="block text-sm font-medium text-foreground mb-1.5">Teléfono</label>
                             <input
                               type="tel"
+                              name="phone"
+                              value={formData.phone}
+                              onChange={handleInputChange}
                               className="w-full px-4 py-2.5 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                               placeholder="Tu teléfono"
                             />
@@ -203,6 +272,9 @@ export default function CheckoutPage() {
                             <label className="block text-sm font-medium text-foreground mb-1.5">Email</label>
                             <input
                               type="email"
+                              name="email"
+                              value={formData.email}
+                              onChange={handleInputChange}
                               className="w-full px-4 py-2.5 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                               placeholder="tu@email.com"
                             />
@@ -221,21 +293,16 @@ export default function CheckoutPage() {
 
                   {currentStep === 2 && (
                     <div>
-                      <h2 className="text-lg font-semibold text-foreground mb-6">Método de Pago</h2>
-                      <div className="space-y-4">
-                        <label className="flex items-center gap-3 p-4 border border-border rounded-lg cursor-pointer hover:border-primary transition-colors">
-                          <input type="radio" name="payment" className="w-4 h-4 text-primary" defaultChecked />
-                          <span className="text-sm font-medium text-foreground">Transferencia Bancaria</span>
-                        </label>
-                        <label className="flex items-center gap-3 p-4 border border-border rounded-lg cursor-pointer hover:border-primary transition-colors">
-                          <input type="radio" name="payment" className="w-4 h-4 text-primary" />
-                          <span className="text-sm font-medium text-foreground">Contra Entrega</span>
-                        </label>
-                        <label className="flex items-center gap-3 p-4 border border-border rounded-lg cursor-pointer hover:border-primary transition-colors">
-                          <input type="radio" name="payment" className="w-4 h-4 text-primary" />
-                          <span className="text-sm font-medium text-foreground">Nequi / Daviplata</span>
-                        </label>
-                      </div>
+                      <h2 className="text-lg font-semibold text-foreground mb-6">Pagar con Mercado Pago</h2>
+
+                      {preferenceId ? (
+                        <Wallet initialization={{ preferenceId }} />
+                      ) : (
+                        <div className="flex justify-center py-10">
+                          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary"></div>
+                        </div>
+                      )}
+
                       <div className="flex gap-4 mt-6">
                         <button
                           type="button"
@@ -243,13 +310,6 @@ export default function CheckoutPage() {
                           className="flex-1 py-3 border border-border text-foreground font-medium rounded-lg hover:bg-muted transition-colors"
                         >
                           Volver
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setCurrentStep(3)}
-                          className="flex-1 py-3 bg-primary text-primary-foreground font-medium rounded-lg hover:bg-primary/90 transition-colors"
-                        >
-                          Confirmar Pedido
                         </button>
                       </div>
                     </div>
