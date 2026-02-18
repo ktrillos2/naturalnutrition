@@ -22,7 +22,7 @@ async function getData() {
         name,
         slug,
         price,
-        "image": images[0].asset->url,
+        "image": images[0],
         "category": categories[0]->title
       }
     }
