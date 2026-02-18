@@ -28,8 +28,10 @@ async function getProduct(slug: string) {
 }
 
 async function getRelatedProducts(categoryId: string, currentId: string) {
-  if (!categoryId) return []
-  return await client.fetch(`*[_type == "product" && $categoryId in categories[]._ref && _id != $currentId][0...4] {
+  let products = []
+
+  if (categoryId) {
+    products = await client.fetch(`*[_type == "product" && $categoryId in categories[]._ref && _id != $currentId][0...4] {
         "id": _id,
         name,
         "slug": slug.current,
@@ -38,6 +40,21 @@ async function getRelatedProducts(categoryId: string, currentId: string) {
         "image": images[0].asset->url,
         "category": coalesce(categories[0]->name, "General")
     }`, { categoryId, currentId })
+  }
+
+  if (products.length === 0) {
+    products = await client.fetch(`*[_type == "product" && _id != $currentId][0...4] {
+        "id": _id,
+        name,
+        "slug": slug.current,
+        price,
+        "originalPrice": originalPrice,
+        "image": images[0].asset->url,
+        "category": coalesce(categories[0]->name, "General")
+    }`, { currentId })
+  }
+
+  return products
 }
 
 async function getFeaturedProducts() {

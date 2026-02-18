@@ -118,4 +118,17 @@ export default defineType({
             ],
         }),
     ],
+    preview: {
+        select: {
+            title: 'name',
+            media: 'images.0',
+        },
+        prepare(selection) {
+            const { title, media } = selection
+            return {
+                title: title,
+                media: media,
+            }
+        },
+    },
 })
