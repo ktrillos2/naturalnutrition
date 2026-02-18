@@ -12,7 +12,7 @@ async function getProduct(slug: string) {
     price,
     "originalPrice": precioRegular,
     "sku": coalesce(sku, "N/A"),
-    "images": images[].asset->url,
+    "images": images,
     description,
     benefits,
     "details": coalesce(details, {}),
@@ -31,7 +31,7 @@ async function getRelatedProducts(currentId: string) {
         "slug": slug.current,
         price,
         "originalPrice": precioRegular,
-        "image": images[0].asset->url
+        "image": images[0]
     }`, { currentId })
 }
 
@@ -42,7 +42,7 @@ async function getFeaturedProducts() {
         "slug": slug.current,
         price,
         "originalPrice": precioRegular,
-        "image": images[0].asset->url
+        "image": images[0]
     }`)
 }
 

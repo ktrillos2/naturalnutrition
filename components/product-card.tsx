@@ -4,13 +4,15 @@ import Link from "next/link"
 import { ShoppingBagIcon, HeartIcon, EyeIcon } from "./icons"
 import { useCart } from "@/components/cart-provider"
 import { useFavorites } from "@/components/favorites-provider"
+import { urlFor } from "@/sanity/lib/image"
+import Image from "next/image"
 
 interface Product {
   id: number | string
   name: string
   price: number
   originalPrice?: number
-  image: string
+  image: any
   badge?: string
   slug?: string
 }
@@ -41,11 +43,20 @@ export function ProductCard({ product }: { product: Product }) {
       {/* Image */}
       <div className="relative aspect-square overflow-hidden bg-secondary">
         <Link href={productLink}>
-          <img
-            src={product.image || "/placeholder.svg"}
-            alt={product.name}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-          />
+          {typeof product.image === 'string' ? (
+            <img
+              src={product.image || "/placeholder.svg"}
+              alt={product.name}
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            />
+          ) : (
+            <Image
+              src={product.image ? urlFor(product.image).quality(80).auto('format').url() : "/placeholder.svg"}
+              alt={product.name}
+              fill
+              className="object-cover group-hover:scale-105 transition-transform duration-500"
+            />
+          )}
         </Link>
 
         {/* Badge */}

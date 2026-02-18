@@ -4,6 +4,8 @@ import Link from "next/link"
 import { ChevronRightIcon, ShieldCheckIcon, TruckIcon, LeafIcon } from "./icons"
 import { useEffect, useState } from "react"
 import { PortableText } from "next-sanity"
+import { urlFor } from "@/sanity/lib/image"
+import Image from "next/image"
 
 interface HeroProps {
   data?: {
@@ -107,11 +109,22 @@ export function HeroSection({ data }: HeroProps) {
             className={`order-1 lg:order-2 relative transition-all duration-700 delay-200 ${isVisible ? "opacity-100 translate-x-0" : "opacity-0 translate-x-10"}`}
           >
             <div className="relative rounded-2xl overflow-hidden shadow-2xl hover:shadow-3xl transition-shadow duration-500">
-              <img
-                src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/2025-12-29_17-02-41-removebg-preview-zuZmJTKtERxikfiwaCUtm4t7z7mLg6.png"
-                alt="Productos naturales Natural Nutrición"
-                className="w-full h-auto object-cover hover:scale-105 transition-transform duration-700"
-              />
+              {data.image ? (
+                <Image
+                  src={urlFor(data.image).quality(100).auto('format').url()}
+                  alt={data.title?.[0]?.children?.[0]?.text || "Natural Nutrición"}
+                  width={1000}
+                  height={1000}
+                  className="w-full h-auto object-cover hover:scale-105 transition-transform duration-700"
+                  priority
+                />
+              ) : (
+                <img
+                  src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/2025-12-29_17-02-41-removebg-preview-zuZmJTKtERxikfiwaCUtm4t7z7mLg6.png"
+                  alt="Productos naturales Natural Nutrición"
+                  className="w-full h-auto object-cover hover:scale-105 transition-transform duration-700"
+                />
+              )}
               <div className="absolute inset-0 bg-gradient-to-t from-primary/20 to-transparent" />
             </div>
             {/* Floating Card - Animación flotante */}

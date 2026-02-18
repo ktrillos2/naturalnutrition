@@ -15,6 +15,8 @@ import { ProductCard } from "@/components/product-card"
 import { useCart } from "@/components/cart-provider"
 import { useFavorites } from "@/components/favorites-provider"
 import { PortableText } from "@portabletext/react"
+import { urlFor } from "@/sanity/lib/image"
+import Image from "next/image"
 
 export function ProductClient({ product, featuredProducts }: { product: any; featuredProducts: any[] }) {
     const [selectedImage, setSelectedImage] = useState(0)
@@ -55,7 +57,7 @@ export function ProductClient({ product, featuredProducts }: { product: any; fea
                 id: product.sku || product._id || product.name, // Use SKU or ID
                 name: product.name,
                 price: product.price,
-                image: product.images?.[0] || "/placeholder.svg", // Use first image
+                image: product.images?.[0] ? urlFor(product.images[0]).quality(80).auto('format').url() : "/placeholder.svg", // Use optimized URL for cart
                 slug: product.slug
             })
         }
@@ -95,11 +97,13 @@ export function ProductClient({ product, featuredProducts }: { product: any; fea
             <div className="grid lg:grid-cols-2 gap-8 lg:gap-12">
                 {/* Gallery */}
                 <div className="space-y-4 lg:sticky lg:top-24 h-fit">
-                    <div className="aspect-square rounded-xl overflow-hidden bg-secondary">
-                        <img
-                            src={images[selectedImage] || "/placeholder.svg"}
+                    <div className="aspect-square rounded-xl overflow-hidden bg-secondary relative">
+                        <Image
+                            src={images[selectedImage] ? urlFor(images[selectedImage]).quality(90).auto('format').url() : "/placeholder.svg"}
                             alt={product.name}
-                            className="w-full h-full object-cover"
+                            fill
+                            className="object-cover"
+                            priority
                         />
                     </div>
                     {images.length > 1 && (
@@ -108,10 +112,15 @@ export function ProductClient({ product, featuredProducts }: { product: any; fea
                                 <button
                                     key={index}
                                     onClick={() => setSelectedImage(index)}
-                                    className={`w-20 h-20 rounded-lg overflow-hidden border-2 transition-colors ${selectedImage === index ? "border-primary" : "border-transparent hover:border-border"
+                                    className={`w-20 h-20 rounded-lg overflow-hidden border-2 transition-colors relative ${selectedImage === index ? "border-primary" : "border-transparent hover:border-border"
                                         }`}
                                 >
-                                    <img src={image || "/placeholder.svg"} alt="" className="w-full h-full object-cover" />
+                                    <Image
+                                        src={image ? urlFor(image).quality(60).auto('format').url() : "/placeholder.svg"}
+                                        alt=""
+                                        fill
+                                        className="object-cover"
+                                    />
                                 </button>
                             ))}
                         </div>

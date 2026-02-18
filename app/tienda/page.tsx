@@ -27,7 +27,7 @@ async function getData(page: number, searchQuery: string, categorySlug?: string)
       "slug": slug.current,
       price,
       "originalPrice": precioRegular,
-      "image": images[0].asset->url,
+      "image": images[0],
       "category": category->name
     },
     "categories": *[_type == "category"] | order(name asc) {
