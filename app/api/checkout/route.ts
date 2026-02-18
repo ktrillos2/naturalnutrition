@@ -51,7 +51,7 @@ export async function POST(req: Request) {
 
         const result = await preference.create({ body });
 
-        return NextResponse.json({ id: result.id });
+        return NextResponse.json({ url: result.init_point });
     } catch (error) {
         console.error("Error creating preference:", error);
         return NextResponse.json(

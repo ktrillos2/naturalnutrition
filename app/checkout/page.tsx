@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo, useEffect } from "react"
+import { useState, useMemo } from "react"
 import { TopBar } from "@/components/top-bar"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
@@ -8,12 +8,7 @@ import { TruckIcon, CheckIcon } from "@/components/icons"
 import Link from "next/link"
 import { useCart } from "@/components/cart-provider"
 import colombiaData from "@/lib/colombia-locations.json"
-import { initMercadoPago, Wallet } from "@mercadopago/sdk-react"
-
-// Initialize Mercado Pago
-initMercadoPago(process.env.NEXT_PUBLIC_MP_PUBLIC_KEY || "", {
-  locale: 'es-CO'
-});
+import { toast } from "sonner"
 
 const steps = [
   { id: 1, name: "Envío", icon: TruckIcon },
@@ -42,10 +37,11 @@ const steps = [
 
 export default function CheckoutPage() {
   const [currentStep, setCurrentStep] = useState(1)
-  const { items: cartItems, cartTotal } = useCart()
+  const { items: cartItems } = useCart()
 
   const [selectedDept, setSelectedDept] = useState("")
   const [selectedCity, setSelectedCity] = useState("")
+  const [loading, setLoading] = useState(false)
 
   // Checkout Form State
   const [formData, setFormData] = useState({
@@ -57,7 +53,6 @@ export default function CheckoutPage() {
     email: "",
   });
 
-  const [preferenceId, setPreferenceId] = useState<string | null>(null);
 
   const cities = useMemo(() => {
     const dept = colombiaData.find((d) => d.departamento === selectedDept)
@@ -65,8 +60,6 @@ export default function CheckoutPage() {
   }, [selectedDept])
 
   const shipping = 12000
-  // cartTotal might be a string or number depending on useCart implementation. 
-  // Assuming it returns a number or we calculate it from items.
   const subtotal = cartItems.reduce((sum, item) => sum + item.price * (item.quantity || 1), 0)
   const total = subtotal + shipping
 
@@ -75,7 +68,8 @@ export default function CheckoutPage() {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const createPreference = async () => {
+  const handlePayment = async () => {
+    setLoading(true);
     try {
       const response = await fetch("/api/checkout", {
         method: "POST",
@@ -95,20 +89,18 @@ export default function CheckoutPage() {
       });
 
       const data = await response.json();
-      if (data.id) {
-        setPreferenceId(data.id);
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        toast.error("Error al iniciar el pago. Inténtalo de nuevo.");
+        setLoading(false);
       }
     } catch (error) {
       console.error("Error creating preference:", error);
+      toast.error("Error de conexión. Inténtalo de nuevo.");
+      setLoading(false);
     }
   };
-
-  // Create preference when moving to payment step
-  useEffect(() => {
-    if (currentStep === 2 && !preferenceId) {
-      createPreference();
-    }
-  }, [currentStep, preferenceId]);
 
 
   return (
@@ -190,7 +182,7 @@ export default function CheckoutPage() {
                   {currentStep === 1 && (
                     <div>
                       <h2 className="text-lg font-semibold text-foreground mb-6">Información de Envío</h2>
-                      <form className="space-y-4">
+                      <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); setCurrentStep(2); }}>
                         <div className="grid sm:grid-cols-2 gap-4">
                           <div>
                             <label className="block text-sm font-medium text-foreground mb-1.5">Nombre</label>
@@ -297,8 +289,7 @@ export default function CheckoutPage() {
                           </div>
                         </div>
                         <button
-                          type="button"
-                          onClick={() => setCurrentStep(2)}
+                          type="submit"
                           className="w-full py-3 bg-primary text-primary-foreground font-medium rounded-lg hover:bg-primary/90 transition-colors mt-6"
                         >
                           Continuar al Pago
@@ -309,23 +300,29 @@ export default function CheckoutPage() {
 
                   {currentStep === 2 && (
                     <div>
-                      <h2 className="text-lg font-semibold text-foreground mb-6">Pagar con Mercado Pago</h2>
+                      <h2 className="text-lg font-semibold text-foreground mb-6">Confirmar Pago</h2>
+                      <p className="text-muted-foreground mb-6">Serás redirigido a MercadoPago para completar tu compra de forma segura.</p>
 
-                      {preferenceId ? (
-                        <Wallet initialization={{ preferenceId }} />
-                      ) : (
-                        <div className="flex justify-center py-10">
-                          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary"></div>
-                        </div>
-                      )}
-
-                      <div className="flex gap-4 mt-6">
+                      <div className="flex gap-4">
                         <button
                           type="button"
                           onClick={() => setCurrentStep(1)}
                           className="flex-1 py-3 border border-border text-foreground font-medium rounded-lg hover:bg-muted transition-colors"
+                          disabled={loading}
                         >
                           Volver
+                        </button>
+                        <button
+                          type="button"
+                          onClick={handlePayment}
+                          className="flex-1 py-3 bg-primary text-primary-foreground font-medium rounded-lg hover:bg-primary/90 transition-colors flex items-center justify-center"
+                          disabled={loading}
+                        >
+                          {loading ? (
+                            <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                          ) : (
+                            "Pagar con MercadoPago"
+                          )}
                         </button>
                       </div>
                     </div>
