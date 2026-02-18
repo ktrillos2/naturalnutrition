@@ -34,13 +34,17 @@ export async function POST(req: Request) {
                     area_code: "57",
                     number: payer?.phone || "3123456789",
                 },
+                identification: {
+                    type: "CC",
+                    number: payer?.cedula || "123456789",
+                },
             },
-            back_url: {
+            backUrls: {
                 success: `${baseUrl}/checkout/success`,
                 failure: `${baseUrl}/checkout/failure`,
                 pending: `${baseUrl}/checkout/pending`,
             },
-            ...(baseUrl.includes("localhost") ? {} : { auto_return: "approved" }),
+            autoReturn: "approved",
         };
 
         console.log("Preference body:", JSON.stringify(body, null, 2));

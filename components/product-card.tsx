@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { ShoppingBagIcon, HeartIcon, EyeIcon } from "./icons"
 import { useCart } from "@/components/cart-provider"
+import { useFavorites } from "@/components/favorites-provider"
 
 interface Product {
   id: number | string
@@ -10,13 +11,14 @@ interface Product {
   price: number
   originalPrice?: number
   image: string
-  category: string
   badge?: string
   slug?: string
 }
 
 export function ProductCard({ product }: { product: Product }) {
   const { addItem } = useCart()
+  const { toggleFavorite, isFavorite } = useFavorites()
+  const isFav = isFavorite(String(product.id))
 
   const discount = product.originalPrice
     ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
@@ -56,10 +58,24 @@ export function ProductCard({ product }: { product: Product }) {
         {/* Actions */}
         <div className="absolute top-3 right-3 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
           <button
-            className="w-9 h-9 bg-card/90 backdrop-blur-sm rounded-full flex items-center justify-center text-foreground hover:text-accent hover:bg-card transition-colors shadow-sm"
-            aria-label="Añadir a favoritos"
+            onClick={(e) => {
+              e.preventDefault()
+              toggleFavorite({
+                id: String(product.id),
+                name: product.name,
+                price: product.price,
+                originalPrice: product.originalPrice,
+                image: product.image,
+                slug: product.slug || String(product.id)
+              })
+            }}
+            className={`w-9 h-9 backdrop-blur-sm rounded-full flex items-center justify-center transition-colors shadow-sm ${isFav
+              ? "bg-primary text-primary-foreground hover:bg-primary/90"
+              : "bg-card/90 text-foreground hover:text-primary hover:bg-card"
+              }`}
+            aria-label={isFav ? "Eliminar de favoritos" : "Añadir a favoritos"}
           >
-            <HeartIcon className="w-4 h-4" />
+            <HeartIcon className={`w-4 h-4 ${isFav ? "fill-current" : ""}`} />
           </button>
           <Link
             href={productLink}
@@ -82,7 +98,6 @@ export function ProductCard({ product }: { product: Product }) {
 
       {/* Info */}
       <div className="p-4">
-        <p className="text-xs text-accent font-medium mb-1 uppercase tracking-wide">{product.category}</p>
         <Link href={productLink}>
           <h3 className="text-sm font-medium text-foreground hover:text-primary transition-colors line-clamp-2 mb-2">
             {product.name}

@@ -13,6 +13,7 @@ import {
 } from "@/components/icons"
 import { ProductCard } from "@/components/product-card"
 import { useCart } from "@/components/cart-provider"
+import { useFavorites } from "@/components/favorites-provider"
 import { PortableText } from "@portabletext/react"
 
 export function ProductClient({ product, featuredProducts }: { product: any; featuredProducts: any[] }) {
@@ -20,6 +21,8 @@ export function ProductClient({ product, featuredProducts }: { product: any; fea
     const [quantity, setQuantity] = useState(1)
     const [openSection, setOpenSection] = useState<string | null>("description")
     const { addItem } = useCart()
+    const { toggleFavorite, isFavorite } = useFavorites()
+    const isFav = isFavorite(product.sku || product._id || product.name)
 
     const toggleSection = (section: string) => {
         setOpenSection(openSection === section ? null : section)
@@ -91,8 +94,8 @@ export function ProductClient({ product, featuredProducts }: { product: any; fea
             </nav>
 
             <div className="grid lg:grid-cols-2 gap-8 lg:gap-12">
-                {/* Gallery (unchanged) */}
-                <div className="space-y-4">
+                {/* Gallery */}
+                <div className="space-y-4 lg:sticky lg:top-24 h-fit">
                     <div className="aspect-square rounded-xl overflow-hidden bg-secondary">
                         <img
                             src={images[selectedImage] || "/placeholder.svg"}
@@ -146,7 +149,7 @@ export function ProductClient({ product, featuredProducts }: { product: any; fea
                         )}
                     </div>
 
-                    <p className="text-sm text-muted-foreground mb-6">SKU: {product.sku}</p>
+
 
                     {/* Quantity & Add to Cart */}
                     <div className="flex items-center gap-4 mb-6">
@@ -172,8 +175,21 @@ export function ProductClient({ product, featuredProducts }: { product: any; fea
                             <ShoppingBagIcon className="w-5 h-5" />
                             Añadir al Carrito
                         </button>
-                        <button className="w-12 h-12 flex items-center justify-center border border-border rounded-lg hover:bg-muted hover:border-accent transition-colors">
-                            <HeartIcon className="w-5 h-5" />
+                        <button
+                            onClick={() => toggleFavorite({
+                                id: product.sku || product._id || product.name,
+                                name: product.name,
+                                price: product.price,
+                                originalPrice: product.originalPrice,
+                                image: product.images?.[0] || "/placeholder.svg",
+                                slug: product.slug
+                            })}
+                            className={`w-12 h-12 flex items-center justify-center border rounded-lg transition-colors ${isFav
+                                ? "bg-primary text-primary-foreground border-primary"
+                                : "border-border hover:bg-muted hover:border-accent"}`}
+                            aria-label={isFav ? "Eliminar de favoritos" : "Añadir a favoritos"}
+                        >
+                            <HeartIcon className={`w-5 h-5 ${isFav ? "fill-current" : ""}`} />
                         </button>
                     </div>
 

@@ -26,7 +26,7 @@ const client = createClient({
     useCdn: false,
 })
 
-const FOTOS_DIR = path.join(process.cwd(), 'fotos')
+const FOTOS_DIR = path.join(process.cwd(), 'fotos2')
 
 function normalize(str: string) {
     if (!str) return ""
@@ -103,25 +103,23 @@ async function main() {
 
         if (uploadedImages.length === 0) continue
 
-        // Sort images
-        // Priority 1: Frontal
-        // Priority 2: Contenido Neto (only if no Frontal is deemed 'main' by user logic, but user said: 
-        // "if there is one with frontal, it goes first. if no frontal but content net, that is first")
-
+        // Prioritize: Frontal > Exhibido > Contenido Neto > Principal
         let sortedImages = [...uploadedImages]
+        let mainImageIndex = -1
 
-        const frontalIndex = sortedImages.findIndex(img => img.filename.toLowerCase().includes('frontal'))
+        const priorities = ['frontal', 'exhibido', 'contenido neto', 'principal']
 
-        if (frontalIndex > -1) {
-            const [frontal] = sortedImages.splice(frontalIndex, 1)
-            sortedImages.unshift(frontal)
-        } else {
-            // No frontal, check for contenido neto
-            const contentIndex = sortedImages.findIndex(img => img.filename.toLowerCase().includes('contenido neto'))
-            if (contentIndex > -1) {
-                const [content] = sortedImages.splice(contentIndex, 1)
-                sortedImages.unshift(content)
+        for (const priority of priorities) {
+            const index = sortedImages.findIndex(img => img.filename.toLowerCase().includes(priority))
+            if (index > -1) {
+                mainImageIndex = index
+                break
             }
+        }
+
+        if (mainImageIndex > -1) {
+            const [mainImg] = sortedImages.splice(mainImageIndex, 1)
+            sortedImages.unshift(mainImg)
         }
 
         // Prepare patch

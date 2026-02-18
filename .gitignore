@@ -11,6 +11,9 @@
 /build
 
 /fotos
+/fotos2
+/nueva
+/scripts
 
 # debug
 npm-debug.log*

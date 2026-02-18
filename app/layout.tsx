@@ -4,6 +4,7 @@ import { Poppins } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import "./globals.css"
 import { CartProvider } from "@/components/cart-provider"
+import { FavoritesProvider } from "@/components/favorites-provider"
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -34,8 +35,10 @@ export default function RootLayout({
     <html lang="es">
       <body className={`${poppins.className} font-sans antialiased`}>
         <CartProvider>
-          {children}
-          <Analytics />
+          <FavoritesProvider>
+            {children}
+            <Analytics />
+          </FavoritesProvider>
         </CartProvider>
       </body>
     </html>

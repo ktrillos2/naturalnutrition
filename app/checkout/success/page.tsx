@@ -6,11 +6,23 @@ import { Footer } from "@/components/footer"
 import { TruckIcon, CheckIcon } from "@/components/icons"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
-import { Suspense } from "react"
+import { Suspense, useEffect, useRef } from "react"
 
 function SuccessContent() {
     const searchParams = useSearchParams()
     const paymentId = searchParams.get("payment_id")
+    const notificationSent = useRef(false)
+
+    useEffect(() => {
+        if (paymentId && !notificationSent.current) {
+            notificationSent.current = true
+            fetch("/api/notify", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ paymentId, type: "payment" }),
+            }).catch(err => console.error("Error sending notification:", err))
+        }
+    }, [paymentId])
 
     return (
         <div className="flex justify-center">

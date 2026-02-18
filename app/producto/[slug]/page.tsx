@@ -12,8 +12,6 @@ async function getProduct(slug: string) {
     price,
     "originalPrice": originalPrice,
     "sku": coalesce(sku, "N/A"),
-    "category": coalesce(categories[0]->name, "Sin Categoría"),
-    "categoryId": categories[0]._ref,
     "images": images[].asset->url,
     description,
     benefits,
@@ -27,34 +25,15 @@ async function getProduct(slug: string) {
   }`, { slug })
 }
 
-async function getRelatedProducts(categoryId: string, currentId: string) {
-  let products = []
-
-  if (categoryId) {
-    products = await client.fetch(`*[_type == "product" && $categoryId in categories[]._ref && _id != $currentId][0...4] {
+async function getRelatedProducts(currentId: string) {
+  return await client.fetch(`*[_type == "product" && _id != $currentId][0...4] {
         "id": _id,
         name,
         "slug": slug.current,
         price,
         "originalPrice": originalPrice,
-        "image": images[0].asset->url,
-        "category": coalesce(categories[0]->name, "General")
-    }`, { categoryId, currentId })
-  }
-
-  if (products.length === 0) {
-    products = await client.fetch(`*[_type == "product" && _id != $currentId][0...4] {
-        "id": _id,
-        name,
-        "slug": slug.current,
-        price,
-        "originalPrice": originalPrice,
-        "image": images[0].asset->url,
-        "category": coalesce(categories[0]->name, "General")
+        "image": images[0].asset->url
     }`, { currentId })
-  }
-
-  return products
 }
 
 async function getFeaturedProducts() {
@@ -64,8 +43,7 @@ async function getFeaturedProducts() {
         "slug": slug.current,
         price,
         "originalPrice": originalPrice,
-        "image": images[0].asset->url,
-        "category": coalesce(categories[0]->name, "General")
+        "image": images[0].asset->url
     }`)
 }
 
@@ -87,7 +65,7 @@ export default async function ProductPage({ params }: { params: { slug: string }
 
   // Fetch related products and global config
   const [relatedProducts, globalConfigWrapper] = await Promise.all([
-    product ? getRelatedProducts(product.categoryId, product._id || "") : [],
+    product ? getRelatedProducts(product._id || "") : [],
     getGlobalConfig()
   ])
 

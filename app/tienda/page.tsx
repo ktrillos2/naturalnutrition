@@ -7,23 +7,25 @@ import { ProductCard } from "@/components/product-card"
 import { client } from "@/sanity/lib/client"
 import Link from "next/link"
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react"
+import { SearchIcon, XIcon } from "@/components/icons"
 
 const PRODUCTS_PER_PAGE = 12
 
-async function getData(page: number) {
+async function getData(page: number, searchQuery: string) {
   const start = (page - 1) * PRODUCTS_PER_PAGE
   const end = start + PRODUCTS_PER_PAGE
 
+  const searchFilter = searchQuery ? `&& name match "*${searchQuery}*"` : ""
+
   const query = `{
-    "total": count(*[_type == "product"]),
-    "products": *[_type == "product"] | order(_createdAt desc) [$start...$end] {
+    "total": count(*[_type == "product" ${searchFilter}]),
+    "products": *[_type == "product" ${searchFilter}] | order(_createdAt desc) [$start...$end] {
       "id": _id,
       name,
       "slug": slug.current,
       price,
       "originalPrice": originalPrice,
-      "image": images[0].asset->url,
-      "category": coalesce(categories[0]->name, "General")
+      "image": images[0].asset->url
     },
     "globalConfig": *[_type == "globalConfig"][0]{ content }
   }`
@@ -36,11 +38,13 @@ export const dynamic = "force-dynamic"
 export default async function TiendaPage({
   searchParams,
 }: {
-  searchParams: { page?: string }
+  searchParams: { page?: string; q?: string }
 }) {
   const params = await Promise.resolve(searchParams) // Handle potentially async params
   const currentPage = Number(params?.page) || 1
-  const { total, products, globalConfig } = await getData(currentPage)
+  const searchQuery = params?.q || ""
+
+  const { total, products, globalConfig } = await getData(currentPage, searchQuery)
   const totalPages = Math.ceil(total / PRODUCTS_PER_PAGE)
 
   const configContent = globalConfig?.content
@@ -65,21 +69,52 @@ export default async function TiendaPage({
           </nav>
 
           <div className="flex flex-col lg:flex-row gap-8">
-            {/* Sidebar */}
-            <CategorySidebar />
+            {/* Sidebar Removed */}
 
             {/* Products */}
             <div className="flex-1">
-              <div className="flex items-center justify-between mb-6">
-                <h1 className="text-2xl font-bold text-foreground">Todos los Productos</h1>
-                <p className="text-sm text-muted-foreground">
-                  Mostrando {(currentPage - 1) * PRODUCTS_PER_PAGE + 1} - {Math.min(currentPage * PRODUCTS_PER_PAGE, total)} de {total} productos
-                </p>
+              <div className="flex flex-col sm:flex-row items-center justify-between mb-6 gap-4">
+                <h1 className="text-2xl font-bold text-foreground">
+                  {searchQuery ? `Resultados para: "${searchQuery}"` : "Todos los Productos"}
+                </h1>
+
+                {/* Search in page */}
+                <form
+                  action="/tienda"
+                  className="relative w-full sm:w-72"
+                >
+                  <input
+                    type="text"
+                    name="q"
+                    defaultValue={searchQuery}
+                    placeholder="Buscar en la tienda..."
+                    className="w-full pl-4 pr-10 py-2 border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                  />
+                  <button type="submit" className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary">
+                    <SearchIcon className="w-4 h-4" />
+                  </button>
+                </form>
               </div>
+
+              {searchQuery && (
+                <div className="mb-6 flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground">Filtros activos:</span>
+                  <Link
+                    href="/tienda"
+                    className="inline-flex items-center gap-1 px-3 py-1 bg-primary/10 text-primary text-sm rounded-full hover:bg-primary/20 transition-colors"
+                  >
+                    "{searchQuery}" <XIcon className="w-3 h-3" />
+                  </Link>
+                </div>
+              )}
+
+              <p className="text-sm text-muted-foreground mb-6">
+                Mostrando {(currentPage - 1) * PRODUCTS_PER_PAGE + 1} - {Math.min(currentPage * PRODUCTS_PER_PAGE, total)} de {total} productos
+              </p>
 
               {products.length > 0 ? (
                 <>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 mb-12">
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 mb-12">
                     {products.map((product: any) => (
                       <ProductCard key={product.id} product={product} />
                     ))}
@@ -91,7 +126,7 @@ export default async function TiendaPage({
                       {/* Prev Button */}
                       {currentPage > 1 ? (
                         <Link
-                          href={`/tienda?page=${currentPage - 1}`}
+                          href={`/tienda?page=${currentPage - 1}${searchQuery ? `&q=${searchQuery}` : ""}`}
                           className="flex items-center justify-center w-10 h-10 border border-border rounded-lg hover:bg-muted transition-colors"
                           aria-label="Página anterior"
                         >
@@ -131,7 +166,7 @@ export default async function TiendaPage({
                           typeof page === 'number' ? (
                             <Link
                               key={index}
-                              href={`/tienda?page=${page}`}
+                              href={`/tienda?page=${page}${searchQuery ? `&q=${searchQuery}` : ""}`}
                               className={`flex items-center justify-center w-10 h-10 rounded-lg text-sm font-medium transition-colors ${currentPage === page
                                 ? "bg-primary text-primary-foreground"
                                 : "border border-border hover:bg-muted"
@@ -150,7 +185,7 @@ export default async function TiendaPage({
                       {/* Next Button */}
                       {currentPage < totalPages ? (
                         <Link
-                          href={`/tienda?page=${currentPage + 1}`}
+                          href={`/tienda?page=${currentPage + 1}${searchQuery ? `&q=${searchQuery}` : ""}`}
                           className="flex items-center justify-center w-10 h-10 border border-border rounded-lg hover:bg-muted transition-colors"
                           aria-label="Página siguiente"
                         >

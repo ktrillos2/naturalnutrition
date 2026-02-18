@@ -3,11 +3,12 @@
 import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { SearchIcon, UserIcon, ShoppingBagIcon, XIcon, Bars3Icon } from "./icons"
+import { SearchIcon, UserIcon, ShoppingBagIcon, XIcon, Bars3Icon, HeartIcon } from "./icons"
 import { CartDrawer } from "./cart-drawer"
 import { MobileMenu } from "./mobile-menu"
 import { urlFor } from "@/sanity/lib/image"
 import { useCart } from "@/components/cart-provider"
+import { useFavorites } from "@/components/favorites-provider"
 import { client } from "@/sanity/lib/client"
 
 interface Product {
@@ -38,6 +39,7 @@ export function Header({ logo }: HeaderProps) {
   const searchRef = useRef<HTMLDivElement>(null)
 
   const { cartCount, isOpen: isCartOpen, setIsOpen: setIsCartOpen } = useCart()
+  const { favoritesCount } = useFavorites()
 
   const [products, setProducts] = useState<Product[]>([])
 
@@ -158,6 +160,13 @@ export function Header({ logo }: HeaderProps) {
                           setSearchQuery(e.target.value)
                           setShowResults(true)
                         }}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            setIsSearchOpen(false)
+                            setShowResults(false)
+                            window.location.href = `/tienda?q=${encodeURIComponent(searchQuery)}`
+                          }
+                        }}
                         className="w-full px-4 py-2.5 border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                         autoFocus
                       />
@@ -194,6 +203,15 @@ export function Header({ logo }: HeaderProps) {
                 )}
               </div>
 
+
+              <Link href="/favoritos" className="p-2 text-foreground hover:text-primary transition-colors relative">
+                <HeartIcon className="w-5 h-5" />
+                {favoritesCount > 0 && (
+                  <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-primary text-primary-foreground text-[10px] font-semibold rounded-full flex items-center justify-center">
+                    {favoritesCount}
+                  </span>
+                )}
+              </Link>
 
               {/* Cart */}
               <button

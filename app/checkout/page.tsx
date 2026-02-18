@@ -51,6 +51,7 @@ export default function CheckoutPage() {
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
+    cedula: "",
     address: "",
     phone: "",
     email: "",
@@ -88,6 +89,7 @@ export default function CheckoutPage() {
             surname: formData.lastName,
             email: formData.email,
             phone: formData.phone,
+            cedula: formData.cedula,
           }
         }),
       });
@@ -199,6 +201,7 @@ export default function CheckoutPage() {
                               onChange={handleInputChange}
                               className="w-full px-4 py-2.5 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                               placeholder="Tu nombre"
+                              required
                             />
                           </div>
                           <div>
@@ -210,8 +213,21 @@ export default function CheckoutPage() {
                               onChange={handleInputChange}
                               className="w-full px-4 py-2.5 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                               placeholder="Tu apellido"
+                              required
                             />
                           </div>
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-foreground mb-1.5">Cédula / documento de identidad</label>
+                          <input
+                            type="text"
+                            name="cedula"
+                            value={formData.cedula}
+                            onChange={handleInputChange}
+                            className="w-full px-4 py-2.5 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                            placeholder="Número de documento"
+                            required
+                          />
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-foreground mb-1.5">Dirección</label>

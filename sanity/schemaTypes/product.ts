@@ -54,17 +54,7 @@ export default defineType({
             title: 'Stock',
             type: 'number',
         }),
-        defineField({
-            name: 'categories',
-            title: 'Categories',
-            type: 'array',
-            of: [
-                {
-                    type: 'reference',
-                    to: { type: 'category' },
-                },
-            ],
-        }),
+
         defineField({
             name: 'tags',
             title: 'Tags',
