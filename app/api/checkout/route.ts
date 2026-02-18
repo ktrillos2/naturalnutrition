@@ -53,6 +53,7 @@ export async function POST(req: Request) {
                 pending: `${baseUrl}/checkout/pending`,
             },
             autoReturn: "approved",
+            binary_mode: true,
         };
 
         console.log("Preference body:", JSON.stringify(body, null, 2));
