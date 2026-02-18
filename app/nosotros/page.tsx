@@ -57,11 +57,12 @@ export default async function NosotrosPage() {
               </div>
               <div className="flex justify-center">
                 <Image
-                  src={about.mainImage ? urlFor(about.mainImage).quality(85).auto('format').url() : "/images/about-group.png"}
+                  src={about.mainImage ? urlFor(about.mainImage).width(800).quality(80).auto('format').url() : "/images/about-group.png"}
                   alt={about.title}
                   width={800}
                   height={600}
-                  className="w-full max-w-lg rounded-lg shadow-lg object-contain bg-white "
+                  className="w-full max-w-lg rounded-lg shadow-lg object-contain bg-white p-4"
+                  priority
                 />
               </div>
             </div>

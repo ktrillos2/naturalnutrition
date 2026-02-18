@@ -1,14 +1,20 @@
 import { MercadoPagoConfig, Preference } from "mercadopago";
 import { NextResponse } from "next/server";
 
-const client = new MercadoPagoConfig({
-    accessToken: process.env.MP_ACCESS_TOKEN!,
-});
+// Initialize client inside the handler or use a lazy getter to ensure env vars are populated
+const getMPClient = () => {
+    const token = process.env.MP_ACCESS_TOKEN;
+    if (!token) {
+        throw new Error("MP_ACCESS_TOKEN is not defined in environment variables");
+    }
+    return new MercadoPagoConfig({ accessToken: token });
+};
 
 export async function POST(req: Request) {
     try {
         const { items, payer } = await req.json();
 
+        const client = getMPClient();
         const preference = new Preference(client);
 
         const host = req.headers.get("host");
