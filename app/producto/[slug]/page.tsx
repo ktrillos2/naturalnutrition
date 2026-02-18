@@ -10,7 +10,7 @@ async function getProduct(slug: string) {
   return await client.fetch(`*[_type == "product" && slug.current == $slug][0] {
     name,
     price,
-    "originalPrice": originalPrice,
+    "originalPrice": precioRegular,
     "sku": coalesce(sku, "N/A"),
     "images": images[].asset->url,
     description,
@@ -20,8 +20,7 @@ async function getProduct(slug: string) {
     "modoDeUso": modoDeUso,
     "contraindicaciones": contraindicaciones,
     "beneficios": beneficios,
-    "specifications": specifications,
-    "tags": tags
+    "specifications": specifications
   }`, { slug })
 }
 
@@ -31,7 +30,7 @@ async function getRelatedProducts(currentId: string) {
         name,
         "slug": slug.current,
         price,
-        "originalPrice": originalPrice,
+        "originalPrice": precioRegular,
         "image": images[0].asset->url
     }`, { currentId })
 }
@@ -42,7 +41,7 @@ async function getFeaturedProducts() {
         name,
         "slug": slug.current,
         price,
-        "originalPrice": originalPrice,
+        "originalPrice": precioRegular,
         "image": images[0].asset->url
     }`)
 }

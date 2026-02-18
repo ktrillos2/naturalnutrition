@@ -69,7 +69,6 @@ export function ProductClient({ product, featuredProducts }: { product: any; fea
     const images = product.images || []
     const benefits = product.benefits || []
     const attributes = product.attributes || []
-    const tags = product.tags || []
     const specifications = product.specifications || {}
 
     return (
@@ -123,15 +122,6 @@ export function ProductClient({ product, featuredProducts }: { product: any; fea
                 <div>
                     <div className="flex flex-col gap-2 mb-4">
                         <p className="text-sm text-accent font-medium uppercase tracking-wide">{product.category}</p>
-                        {tags.length > 0 && (
-                            <div className="flex flex-wrap gap-2">
-                                {tags.map((tag: string, index: number) => (
-                                    <span key={index} className="px-2.5 py-0.5 bg-muted rounded-full text-xs font-medium text-muted-foreground">
-                                        {tag}
-                                    </span>
-                                ))}
-                            </div>
-                        )}
                     </div>
                     <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-4">{product.name}</h1>
 

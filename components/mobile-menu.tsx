@@ -8,24 +8,23 @@ interface MobileMenuProps {
   isOpen: boolean
   onClose: () => void
   links: { href: string; label: string }[]
+  categories?: { name: string; slug: string }[]
 }
 
-export function MobileMenu({ isOpen, onClose, links }: MobileMenuProps) {
+export function MobileMenu({ isOpen, onClose, links, categories = [] }: MobileMenuProps) {
   return (
     <>
       {/* Backdrop */}
       <div
-        className={`fixed inset-0 bg-foreground/40 z-50 transition-opacity duration-300 lg:hidden ${
-          isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
-        }`}
+        className={`fixed inset-0 bg-foreground/40 z-50 transition-opacity duration-300 lg:hidden ${isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
+          }`}
         onClick={onClose}
       />
 
       {/* Menu */}
       <div
-        className={`fixed top-0 left-0 h-full w-full max-w-xs bg-background z-50 shadow-2xl transform transition-transform duration-300 ease-out lg:hidden ${
-          isOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
+        className={`fixed top-0 left-0 h-full w-full max-w-xs bg-background z-50 shadow-2xl transform transition-transform duration-300 ease-out lg:hidden ${isOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
       >
         <div className="flex flex-col h-full">
           {/* Header */}
@@ -49,7 +48,7 @@ export function MobileMenu({ isOpen, onClose, links }: MobileMenuProps) {
                     <Link
                       href={link.href}
                       onClick={onClose}
-                      className="flex items-center justify-between py-3 text-foreground hover:text-primary transition-colors"
+                      className="flex items-center justify-between py-3 text-foreground hover:text-primary transition-colors border-b border-border/50"
                     >
                       <span className="font-medium">{link.label}</span>
                       <ChevronRightIcon className="w-4 h-4 text-muted-foreground" />
@@ -58,6 +57,28 @@ export function MobileMenu({ isOpen, onClose, links }: MobileMenuProps) {
                 ))}
               </ul>
             </nav>
+
+            {/* Mobile Categories */}
+            {categories.length > 0 && (
+              <div className="px-4 py-2">
+                <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-3 px-1">
+                  Categorías
+                </p>
+                <ul className="space-y-1">
+                  {categories.map((cat) => (
+                    <li key={cat.slug}>
+                      <Link
+                        href={`/tienda?categoria=${cat.slug}`}
+                        onClick={onClose}
+                        className="flex items-center gap-3 py-2.5 px-3 rounded-lg text-foreground hover:bg-muted hover:text-primary transition-all group"
+                      >
+                        <span className="text-sm font-medium">{cat.name}</span>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
         </div>
       </div>

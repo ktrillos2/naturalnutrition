@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { SearchIcon, UserIcon, ShoppingBagIcon, XIcon, Bars3Icon, HeartIcon } from "./icons"
+import { SearchIcon, UserIcon, ShoppingBagIcon, XIcon, Bars3Icon, HeartIcon, ChevronDownIcon } from "./icons"
 import { CartDrawer } from "./cart-drawer"
 import { MobileMenu } from "./mobile-menu"
 import { urlFor } from "@/sanity/lib/image"
@@ -21,6 +21,7 @@ interface Product {
 
 interface HeaderProps {
   logo?: any
+  categories?: any[]
 }
 
 const navLinks = [
@@ -30,7 +31,8 @@ const navLinks = [
   { href: "/contacto", label: "Contacto" },
 ]
 
-export function Header({ logo }: HeaderProps) {
+export function Header({ logo, categories: initialCategories }: HeaderProps) {
+  const [categories, setCategories] = useState<any[]>(initialCategories || [])
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
   const [showResults, setShowResults] = useState(false)
@@ -58,7 +60,19 @@ export function Header({ logo }: HeaderProps) {
         console.error("Error fetching products for search:", error)
       }
     }
+    const fetchCategories = async () => {
+      try {
+        const data = await client.fetch(`*[_type == "category"] | order(name asc) {
+          name,
+          "slug": slug.current
+        }`)
+        setCategories(data)
+      } catch (error) {
+        console.error("Error fetching categories:", error)
+      }
+    }
     fetchProducts()
+    fetchCategories()
   }, [])
 
   useEffect(() => {
@@ -135,6 +149,27 @@ export function Header({ logo }: HeaderProps) {
                   {link.label}
                 </Link>
               ))}
+
+              {/* Categories Dropdown (Desktop) */}
+              <div className="relative group/cat">
+                <button className="text-sm font-medium text-foreground hover:text-primary transition-colors flex items-center gap-1">
+                  Categorías
+                  <ChevronDownIcon className="w-4 h-4" />
+                </button>
+                <div className="absolute left-0 top-full pt-4 hidden group-hover/cat:block">
+                  <div className="bg-background border border-border rounded-lg shadow-xl p-2 w-56 grid grid-cols-1 gap-1">
+                    {categories.map((cat: any) => (
+                      <Link
+                        key={cat.slug}
+                        href={`/tienda?categoria=${cat.slug}`}
+                        className="px-4 py-2 text-sm text-foreground hover:bg-muted hover:text-primary rounded-md transition-colors"
+                      >
+                        {cat.name}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              </div>
             </nav>
 
             {/* Tools */}
@@ -231,7 +266,12 @@ export function Header({ logo }: HeaderProps) {
         </div>
       </header>
       <CartDrawer isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
-      <MobileMenu isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} links={navLinks} />
+      <MobileMenu
+        isOpen={isMobileMenuOpen}
+        onClose={() => setIsMobileMenuOpen(false)}
+        links={navLinks}
+        categories={categories}
+      />
     </>
   )
 }

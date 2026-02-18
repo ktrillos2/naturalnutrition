@@ -11,9 +11,11 @@ export async function POST(req: Request) {
 
         const preference = new Preference(client);
 
+        const host = req.headers.get("host");
+        const protocol = req.headers.get("x-forwarded-proto") || "http";
         const baseUrl = process.env.NEXT_PUBLIC_URL
             ? process.env.NEXT_PUBLIC_URL.replace(/\/$/, "")
-            : "http://localhost:3000";
+            : `${protocol}://${host}`;
 
         console.log("Creating Mercado Pago preference. Base URL:", baseUrl);
 

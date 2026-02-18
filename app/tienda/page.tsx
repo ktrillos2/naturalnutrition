@@ -11,21 +11,29 @@ import { SearchIcon, XIcon } from "@/components/icons"
 
 const PRODUCTS_PER_PAGE = 12
 
-async function getData(page: number, searchQuery: string) {
+async function getData(page: number, searchQuery: string, categorySlug?: string) {
   const start = (page - 1) * PRODUCTS_PER_PAGE
   const end = start + PRODUCTS_PER_PAGE
 
-  const searchFilter = searchQuery ? `&& name match "*${searchQuery}*"` : ""
+  let filters = `_type == "product"`
+  if (searchQuery) filters += ` && name match "*${searchQuery}*"`
+  if (categorySlug) filters += ` && category->slug.current == "${categorySlug}"`
 
   const query = `{
-    "total": count(*[_type == "product" ${searchFilter}]),
-    "products": *[_type == "product" ${searchFilter}] | order(_createdAt desc) [$start...$end] {
+    "total": count(*[${filters}]),
+    "products": *[${filters}] | order(_createdAt desc) [$start...$end] {
       "id": _id,
       name,
       "slug": slug.current,
       price,
-      "originalPrice": originalPrice,
-      "image": images[0].asset->url
+      "originalPrice": precioRegular,
+      "image": images[0].asset->url,
+      "category": category->name
+    },
+    "categories": *[_type == "category"] | order(name asc) {
+      name,
+      "slug": slug.current,
+      "count": count(*[_type == "product" && references(^._id)])
     },
     "globalConfig": *[_type == "globalConfig"][0]{ content }
   }`
@@ -38,16 +46,18 @@ export const dynamic = "force-dynamic"
 export default async function TiendaPage({
   searchParams,
 }: {
-  searchParams: { page?: string; q?: string }
+  searchParams: { page?: string; q?: string; categoria?: string }
 }) {
-  const params = await Promise.resolve(searchParams) // Handle potentially async params
+  const params = await Promise.resolve(searchParams)
   const currentPage = Number(params?.page) || 1
   const searchQuery = params?.q || ""
+  const categorySlug = params?.categoria || ""
 
-  const { total, products, globalConfig } = await getData(currentPage, searchQuery)
+  const { total, products, categories, globalConfig } = await getData(currentPage, searchQuery, categorySlug)
   const totalPages = Math.ceil(total / PRODUCTS_PER_PAGE)
 
   const configContent = globalConfig?.content
+  const activeCategory = categories.find((c: any) => c.slug === categorySlug)
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -69,13 +79,17 @@ export default async function TiendaPage({
           </nav>
 
           <div className="flex flex-col lg:flex-row gap-8">
-            {/* Sidebar Removed */}
+            <CategorySidebar categories={categories} activeCategory={categorySlug} />
 
             {/* Products */}
             <div className="flex-1">
               <div className="flex flex-col sm:flex-row items-center justify-between mb-6 gap-4">
                 <h1 className="text-2xl font-bold text-foreground">
-                  {searchQuery ? `Resultados para: "${searchQuery}"` : "Todos los Productos"}
+                  {searchQuery
+                    ? `Resultados para: "${searchQuery}"`
+                    : activeCategory
+                      ? `Categoría: ${activeCategory.name}`
+                      : "Todos los Productos"}
                 </h1>
 
                 {/* Search in page */}
@@ -96,15 +110,25 @@ export default async function TiendaPage({
                 </form>
               </div>
 
-              {searchQuery && (
-                <div className="mb-6 flex items-center gap-2">
+              {(searchQuery || categorySlug) && (
+                <div className="mb-6 flex items-center flex-wrap gap-2">
                   <span className="text-sm text-muted-foreground">Filtros activos:</span>
-                  <Link
-                    href="/tienda"
-                    className="inline-flex items-center gap-1 px-3 py-1 bg-primary/10 text-primary text-sm rounded-full hover:bg-primary/20 transition-colors"
-                  >
-                    "{searchQuery}" <XIcon className="w-3 h-3" />
-                  </Link>
+                  {searchQuery && (
+                    <Link
+                      href={`/tienda${categorySlug ? `?categoria=${categorySlug}` : ""}`}
+                      className="inline-flex items-center gap-1 px-3 py-1 bg-primary/10 text-primary text-sm rounded-full hover:bg-primary/20 transition-colors"
+                    >
+                      Búsqueda: "{searchQuery}" <XIcon className="w-3 h-3" />
+                    </Link>
+                  )}
+                  {categorySlug && activeCategory && (
+                    <Link
+                      href={`/tienda${searchQuery ? `?q=${searchQuery}` : ""}`}
+                      className="inline-flex items-center gap-1 px-3 py-1 bg-accent/10 text-accent text-sm rounded-full hover:bg-accent/20 transition-colors"
+                    >
+                      Categoría: {activeCategory.name} <XIcon className="w-3 h-3" />
+                    </Link>
+                  )}
                 </div>
               )}
 
@@ -185,7 +209,7 @@ export default async function TiendaPage({
                       {/* Next Button */}
                       {currentPage < totalPages ? (
                         <Link
-                          href={`/tienda?page=${currentPage + 1}${searchQuery ? `&q=${searchQuery}` : ""}`}
+                          href={`/tienda?page=${currentPage + 1}${searchQuery ? `&q=${searchQuery}` : ""}${categorySlug ? `&categoria=${categorySlug}` : ""}`}
                           className="flex items-center justify-center w-10 h-10 border border-border rounded-lg hover:bg-muted transition-colors"
                           aria-label="Página siguiente"
                         >

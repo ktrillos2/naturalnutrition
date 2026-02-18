@@ -171,11 +171,10 @@ async function main() {
                     name: p.Name,
                     slug: { _type: 'slug', current: generateSlug(p.Slug || p.Name) },
                     price: parseFloat(p.Price || '0'),
-                    regularPrice: parseFloat(p['Regular Price'] || '0'),
+                    precioRegular: parseFloat(p['Regular Price'] || '0'),
                     stock: parseInt(p.Stock || '0'),
                     registroInvima: p['Registro INVIMA'],
-                    advertencia: p.Advertencia, // Schema expects "contraindicaciones" ? No, checked schema: "contraindicaciones" and "advertencia" might different. 
-                    // Schema has "contraindicaciones" defined as 'text'. CSV has "Advertencia". Let's map Advertencia -> contraindicaciones
+                    advertencia: p.Advertencia,
                     contraindicaciones: p.Advertencia,
                     beneficios: p.Beneficios,
                     specifications: {
@@ -186,7 +185,6 @@ async function main() {
                     attributes: parseAttributes(p.Attributes),
                     modoDeUso: createBlockContent(p['Modo de Uso']),
                     description: createBlockContent(p.Description),
-                    tags: p.Tags ? p.Tags.split(',').map(s => s.trim()) : [],
                     categories: catRefs.map(c => ({ _type: 'reference', _key: c.ref, _ref: c.ref })),
                 }
 

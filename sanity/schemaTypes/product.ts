@@ -2,7 +2,7 @@ import { defineField, defineType } from 'sanity'
 
 export default defineType({
     name: 'product',
-    title: 'Product',
+    title: 'Productos',
     type: 'document',
     fields: [
         defineField({
@@ -45,8 +45,8 @@ export default defineType({
             type: 'number',
         }),
         defineField({
-            name: 'regularPrice',
-            title: 'Regular Price',
+            name: 'precioRegular',
+            title: 'Precio Regular',
             type: 'number',
         }),
         defineField({
@@ -55,12 +55,6 @@ export default defineType({
             type: 'number',
         }),
 
-        defineField({
-            name: 'tags',
-            title: 'Tags',
-            type: 'array',
-            of: [{ type: 'string' }],
-        }),
         // Specialized fields extracted from description
         defineField({
             name: 'registroInvima',
@@ -94,6 +88,12 @@ export default defineType({
             ],
         }),
         defineField({
+            name: 'category',
+            title: 'Categoría',
+            type: 'reference',
+            to: [{ type: 'category' }],
+        }),
+        defineField({
             name: 'attributes',
             title: 'Attributes/Variations',
             type: 'array',
@@ -111,13 +111,14 @@ export default defineType({
     preview: {
         select: {
             title: 'name',
-            media: 'images.0',
+            media: 'images.0.asset',
+            price: 'price',
         },
-        prepare(selection) {
-            const { title, media } = selection
+        prepare({ title, media, price }) {
             return {
                 title: title,
                 media: media,
+                subtitle: price ? `Precio: $${price.toLocaleString('es-CO')}` : 'Sin precio',
             }
         },
     },
