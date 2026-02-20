@@ -46,33 +46,19 @@ export function Header({ logo, categories: initialCategories }: HeaderProps) {
   const [products, setProducts] = useState<Product[]>([])
 
   useEffect(() => {
-    const fetchProducts = async () => {
+    const fetchData = async () => {
       try {
-        const data = await client.fetch(`*[_type == "product"]{
-            _id,
-            name,
-            "slug": slug.current,
-            price,
-            "image": images[0].asset->url
-        }`)
-        setProducts(data)
+        const res = await fetch('/api/header-data');
+        if (res.ok) {
+          const data = await res.json();
+          setCategories(data.categories || []);
+          setProducts(data.products || []);
+        }
       } catch (error) {
-        console.error("Error fetching products for search:", error)
+        console.error("Error fetching header data:", error);
       }
-    }
-    const fetchCategories = async () => {
-      try {
-        const data = await client.fetch(`*[_type == "category"] | order(name asc) {
-          name,
-          "slug": slug.current
-        }`)
-        setCategories(data)
-      } catch (error) {
-        console.error("Error fetching categories:", error)
-      }
-    }
-    fetchProducts()
-    fetchCategories()
+    };
+    fetchData();
   }, [])
 
   useEffect(() => {
