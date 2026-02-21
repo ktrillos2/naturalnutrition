@@ -2,8 +2,25 @@
 
 import { useEffect, useRef, useState } from "react"
 
+interface DistributorBenefit {
+    title: string
+    description: string
+}
+
+interface DistributorProps {
+    data?: {
+        badgeText?: string
+        headingLine1?: string
+        headingAccent?: string
+        description?: string
+        ctaLabel?: string
+        ctaLink?: string
+        benefits?: DistributorBenefit[]
+    }
+}
+
 /** Sección de distribuidores / aliados — estilo dark premium con accordion */
-export function DistributorSection() {
+export function DistributorSection({ data }: DistributorProps) {
     const [isVisible, setIsVisible] = useState(false)
     const [openIndex, setOpenIndex] = useState(0)
     const sectionRef = useRef<HTMLElement>(null)
@@ -22,28 +39,32 @@ export function DistributorSection() {
         return () => observer.disconnect()
     }, [])
 
-    const benefits = [
+    /** Fallback benefits if Sanity data is not available */
+    const benefits: DistributorBenefit[] = data?.benefits?.length ? data.benefits : [
         {
-            number: "01",
             title: "Márgenes Competitivos",
             description: "Garantizamos una estructura de costos sólida y diseñada en un mercado creciente para maximizar tu rentabilidad mes a mes. Sin letra pequeña."
         },
         {
-            number: "02",
             title: "Catálogo Exclusivo",
             description: "Acceso a nuestro catálogo completo de productos americanos 100% naturales con disponibilidad garantizada y actualizaciones constantes."
         },
         {
-            number: "03",
             title: "Acompañamiento",
             description: "Capacitación personalizada, material de marketing profesional y soporte dedicado para impulsar tu negocio desde el día uno."
         },
         {
-            number: "04",
             title: "Escalabilidad",
             description: "Un mercado en expansión con consumidores cada vez más conscientes de su salud. Crece con nosotros sin límites."
         }
     ]
+
+    const badgeText = data?.badgeText || '🤝 Partners Program'
+    const headingLine1 = data?.headingLine1 || 'Crecimiento'
+    const headingAccent = data?.headingAccent || 'asegurado.'
+    const description = data?.description || 'Únete a nuestra red de distribución. Accede a productos americanos de alta rotación y un mercado global en expansión.'
+    const ctaLabel = data?.ctaLabel || 'Iniciar solicitud'
+    const ctaLink = data?.ctaLink || 'https://wa.me/573502138686?text=Hola%2C%20quiero%20ser%20distribuidor%20de%20Natural%20Nutrici%C3%B3n'
 
     return (
         <section
@@ -70,7 +91,7 @@ export function DistributorSection() {
                             className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-md text-xs font-bold uppercase tracking-widest mb-8 transition-all duration-500 delay-100 ${isVisible ? "opacity-100" : "opacity-0"}`}
                             style={{ background: '#6CAEbb', color: 'white' }}
                         >
-                            🤝 Partners Program
+                            {badgeText}
                         </span>
 
                         {/* Heading */}
@@ -78,12 +99,12 @@ export function DistributorSection() {
                             className={`text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1.05] mb-6 transition-all duration-700 delay-200 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-5"}`}
                             style={{ color: 'white' }}
                         >
-                            Crecimiento{" "}
+                            {headingLine1}{" "}
                             <span
                                 className="block"
                                 style={{ fontFamily: "var(--font-playfair), Georgia, serif", fontStyle: "italic", color: '#6CAEbb' }}
                             >
-                                asegurado.
+                                {headingAccent}
                             </span>
                         </h2>
 
@@ -92,12 +113,12 @@ export function DistributorSection() {
                             className={`text-sm sm:text-base leading-relaxed mb-10 max-w-sm transition-all duration-700 delay-300 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-5"}`}
                             style={{ color: 'rgba(255,255,255,0.55)' }}
                         >
-                            Únete a nuestra red de distribución. Accede a productos americanos de alta rotación y un mercado global en expansión.
+                            {description}
                         </p>
 
                         {/* CTA */}
                         <a
-                            href="https://wa.me/573502138686?text=Hola%2C%20quiero%20ser%20distribuidor%20de%20Natural%20Nutrici%C3%B3n"
+                            href={ctaLink}
                             target="_blank"
                             rel="noopener noreferrer"
                             className={`inline-flex items-center gap-3 px-7 py-3.5 rounded-full font-bold text-sm uppercase tracking-wider hover:scale-105 transition-all duration-300 group ${isVisible ? "opacity-100" : "opacity-0"}`}
@@ -107,7 +128,7 @@ export function DistributorSection() {
                                 border: '2px solid rgba(255,255,255,0.3)',
                             }}
                         >
-                            Iniciar solicitud
+                            {ctaLabel}
                             <span
                                 className="w-8 h-8 rounded-full flex items-center justify-center group-hover:translate-x-1 transition-transform"
                                 style={{ background: '#6CAEbb', color: 'white' }}
@@ -125,6 +146,7 @@ export function DistributorSection() {
                     >
                         {benefits.map((benefit, idx) => {
                             const isOpen = openIndex === idx
+                            const number = String(idx + 1).padStart(2, '0')
                             return (
                                 <div
                                     key={idx}
@@ -141,7 +163,7 @@ export function DistributorSection() {
                                             className="text-sm font-bold shrink-0"
                                             style={{ fontFamily: "var(--font-playfair), Georgia, serif", fontStyle: "italic", color: '#6CAEbb' }}
                                         >
-                                            {benefit.number}
+                                            {number}
                                         </span>
 
                                         {/* Title */}

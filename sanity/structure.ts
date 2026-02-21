@@ -51,6 +51,14 @@ export const structure: StructureResolver = (S) =>
                     .documentId('productBenefits')
                     .title('Beneficios del Producto')
                 ),
+              S.listItem()
+                .title('Sección Distribuidores')
+                .child(
+                  S.document()
+                    .schemaType('distributor')
+                    .documentId('distributor')
+                    .title('Sección Distribuidores')
+                ),
             ])
         ),
       S.listItem()
@@ -73,7 +81,7 @@ export const structure: StructureResolver = (S) =>
       ...S.documentTypeListItems().filter(
         (item) => {
           const id = item.getId();
-          return id && !['hero', 'history', 'featured', 'testimonials', 'productBenefits', 'about', 'globalConfig', 'home'].includes(id)
+          return id && !['hero', 'history', 'featured', 'testimonials', 'productBenefits', 'about', 'globalConfig', 'home', 'distributor'].includes(id)
         }
       ),
     ])

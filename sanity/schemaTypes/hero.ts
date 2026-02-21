@@ -14,17 +14,22 @@ export default defineType({
             },
             fields: [
                 defineField({
-                    name: 'badge',
-                    title: 'Badge Text',
+                    name: 'headingLine1',
+                    title: 'Título - Línea 1',
                     type: 'string',
-                    description: 'Texto del badge (ej. "100% Natural y Orgánico")',
+                    description: 'Primera línea del heading (ej. "Tu bienestar")',
                 }),
                 defineField({
-                    name: 'title',
-                    title: 'Título',
-                    type: 'array',
-                    of: [{ type: 'block' }],
-                    description: 'Título principal. Usa negrita para resaltar en color.',
+                    name: 'headingAccent',
+                    title: 'Título - Línea Cursiva',
+                    type: 'string',
+                    description: 'Línea en cursiva destacada (ej. "100% natural")',
+                }),
+                defineField({
+                    name: 'headingLine2',
+                    title: 'Título - Línea 3',
+                    type: 'string',
+                    description: 'Tercera línea del heading (ej. "en tu cuerpo.")',
                 }),
                 defineField({
                     name: 'description',
@@ -35,15 +40,6 @@ export default defineType({
                 defineField({
                     name: 'primaryCta',
                     title: 'Botón Principal',
-                    type: 'object',
-                    fields: [
-                        defineField({ name: 'label', type: 'string', title: 'Texto' }),
-                        defineField({ name: 'link', type: 'string', title: 'Enlace' }),
-                    ],
-                }),
-                defineField({
-                    name: 'secondaryCta',
-                    title: 'Botón Secundario',
                     type: 'object',
                     fields: [
                         defineField({ name: 'label', type: 'string', title: 'Texto' }),
@@ -64,25 +60,32 @@ export default defineType({
                     ],
                 }),
                 defineField({
-                    name: 'floatingCard',
-                    title: 'Tarjeta Flotante',
-                    type: 'object',
-                    fields: [
-                        defineField({ name: 'text', type: 'string', title: 'Texto Pequeño' }),
-                        defineField({ name: 'value', type: 'string', title: 'Valor Grande ({ej. +500)' }),
-                    ]
+                    name: 'certificationLabel',
+                    title: 'Certificación - Etiqueta',
+                    type: 'string',
+                    description: 'Etiqueta pequeña (ej. "Certificación")',
                 }),
                 defineField({
-                    name: 'trustBadges',
-                    title: 'Íconos de Confianza',
+                    name: 'certificationValue',
+                    title: 'Certificación - Valor',
+                    type: 'string',
+                    description: 'Valor principal (ej. "Invima Vigente")',
+                }),
+                defineField({
+                    name: 'marqueeItems',
+                    title: 'Items del Marquee',
+                    description: 'Textos que aparecen en la barra scrolling inferior',
                     type: 'array',
                     of: [
                         {
                             type: 'object',
                             fields: [
-                                defineField({ name: 'icon', type: 'string', title: 'Nombre del Ícono (ej. ShieldCheckIcon)' }),
+                                defineField({ name: 'icon', type: 'string', title: 'Ícono/Emoji' }),
                                 defineField({ name: 'text', type: 'string', title: 'Texto' }),
-                            ]
+                            ],
+                            preview: {
+                                select: { title: 'text', subtitle: 'icon' }
+                            }
                         }
                     ]
                 }),
@@ -120,15 +123,12 @@ export default defineType({
                             }
                         }
                     ]
-                })
+                }),
             ],
         }),
     ],
     preview: {
-        select: {
-            title: 'content.badge', // Using badge as title proxy since title is PortableText
-        },
-        prepare(selection) {
+        prepare() {
             return {
                 title: 'Sección Principal (Hero)',
                 subtitle: 'Gestiona la sección principal del home'

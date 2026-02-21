@@ -31,11 +31,12 @@ async function getData() {
   const testimonials = await client.fetch(`*[_type == "testimonials"][0]{ content }`)
   const productBenefits = await client.fetch(`*[_type == "productBenefits"][0]`)
   const globalConfig = await client.fetch(`*[_type == "globalConfig"][0]{ content }`)
-  return { hero: hero?.content, history: history?.content, featured, testimonials, productBenefits, globalConfig: globalConfig?.content }
+  const distributor = await client.fetch(`*[_type == "distributor"][0]{ content }`)
+  return { hero: hero?.content, history: history?.content, featured, testimonials, productBenefits, globalConfig: globalConfig?.content, distributor: distributor?.content }
 }
 
 export default async function HomePage() {
-  const { hero, history, featured, testimonials, productBenefits, globalConfig } = await getData()
+  const { hero, history, featured, testimonials, productBenefits, globalConfig, distributor } = await getData()
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -48,7 +49,7 @@ export default async function HomePage() {
         <FeaturedProducts data={featured} />
         <TestimonialsSection data={testimonials} />
         <ProductBenefitsSection data={productBenefits} />
-        <DistributorSection />
+        <DistributorSection data={distributor} />
       </main>
       <Footer data={globalConfig?.content} />
       <WhatsAppButton />

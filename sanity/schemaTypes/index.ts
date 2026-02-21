@@ -10,7 +10,8 @@ import testimonials from './testimonials'
 import productBenefits from './product-benefits'
 import about from './about'
 import { order } from './order'
+import distributor from './distributor'
 
 export const schema: { types: SchemaTypeDefinition[] } = {
-  types: [product, category, hero, globalConfig, history, featured, testimonials, productBenefits, about, order],
+  types: [product, category, hero, globalConfig, history, featured, testimonials, productBenefits, about, order, distributor],
 }
