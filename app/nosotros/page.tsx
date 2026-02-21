@@ -61,7 +61,7 @@ export default async function NosotrosPage() {
                   alt={about.title}
                   width={800}
                   height={600}
-                  className="w-full max-w-lg rounded-lg shadow-lg object-contain bg-white p-4"
+                  className="w-full max-w-lg rounded-lg shadow-lg object-contain bg-white "
                   priority
                 />
               </div>

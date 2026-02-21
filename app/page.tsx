@@ -6,6 +6,7 @@ import { FeaturedProducts } from "@/components/featured-products"
 import { HistorySection } from "@/components/history-section"
 import { TestimonialsSection } from "@/components/testimonials-section"
 import { ProductBenefitsSection } from "@/components/product-benefits-section"
+import { DistributorSection } from "@/components/distributor-section"
 import { Footer } from "@/components/footer"
 import { WhatsAppButton } from "@/components/whatsapp-button"
 import { client } from "@/sanity/lib/client"
@@ -47,6 +48,7 @@ export default async function HomePage() {
         <FeaturedProducts data={featured} />
         <TestimonialsSection data={testimonials} />
         <ProductBenefitsSection data={productBenefits} />
+        <DistributorSection />
       </main>
       <Footer data={globalConfig?.content} />
       <WhatsAppButton />
