@@ -43,13 +43,13 @@ export default async function NosotrosPage() {
                 <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-6 text-balance">
                   {about.title}
                 </h1>
-                <p className="text-lg text-muted-foreground leading-relaxed mb-6">
+                <p className="text-lg text-muted-foreground leading-relaxed mb-6 whitespace-pre-line">
                   {about.description}
                 </p>
                 {about.mission && (
                   <div className="bg-primary/10 border-l-4 border-primary p-6 rounded-r-lg">
                     <h2 className="text-lg font-semibold text-primary mb-2">{about.mission.title}</h2>
-                    <p className="text-muted-foreground leading-relaxed">
+                    <p className="text-muted-foreground leading-relaxed whitespace-pre-line">
                       {about.mission.description}
                     </p>
                   </div>
@@ -75,7 +75,7 @@ export default async function NosotrosPage() {
             <div className="max-w-7xl mx-auto px-4 sm:px-6">
               <div className="text-center mb-12">
                 <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-4">{about.features.title}</h2>
-                <p className="text-muted-foreground max-w-2xl mx-auto">
+                <p className="text-muted-foreground max-w-2xl mx-auto whitespace-pre-line">
                   {about.features.description}
                 </p>
               </div>
@@ -89,7 +89,7 @@ export default async function NosotrosPage() {
                       <CheckCircleIcon className="w-6 h-6 text-primary" />
                     </div>
                     <h3 className="text-lg font-semibold text-foreground mb-2">{item.title}</h3>
-                    <p className="text-sm text-muted-foreground leading-relaxed">{item.description}</p>
+                    <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line">{item.description}</p>
                   </div>
                 ))}
               </div>
