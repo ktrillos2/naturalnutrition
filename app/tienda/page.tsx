@@ -30,7 +30,8 @@ async function getData(page: number, searchQuery: string, categorySlug?: string)
       "image": images[0],
       "category": category->name,
       stock,
-      registroInvima
+      registroInvima,
+      proximoLanzamiento
     },
     "categories": *[_type == "category"] | order(name asc) {
       name,

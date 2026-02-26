@@ -21,7 +21,10 @@ async function getProduct(slug: string) {
     "contraindicaciones": contraindicaciones,
     "beneficios": beneficios,
     "specifications": specifications,
-    stock
+    stock,
+    registroInvima,
+    proximoLanzamiento,
+    "category": category->name
   }`, { slug })
 }
 
@@ -33,7 +36,9 @@ async function getRelatedProducts(currentId: string) {
         price,
         "originalPrice": precioRegular,
         "image": images[0],
-        stock
+        stock,
+        registroInvima,
+        proximoLanzamiento
     }`, { currentId })
 }
 
@@ -45,7 +50,9 @@ async function getFeaturedProducts() {
         price,
         "originalPrice": precioRegular,
         "image": images[0],
-        stock
+        stock,
+        registroInvima,
+        proximoLanzamiento
     }`)
 }
 

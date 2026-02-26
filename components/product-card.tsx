@@ -17,6 +17,7 @@ interface Product {
   slug?: string
   stock?: number
   registroInvima?: string
+  proximoLanzamiento?: boolean
 }
 
 export function ProductCard({ product }: { product: Product }) {
@@ -25,6 +26,8 @@ export function ProductCard({ product }: { product: Product }) {
   const isFav = isFavorite(String(product.id))
 
   const outOfStock = product.stock !== undefined && product.stock !== null && product.stock <= 0
+  const comingSoon = product.proximoLanzamiento === true
+  const isDisabled = outOfStock || comingSoon
 
   const discount = product.originalPrice
     ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
@@ -33,7 +36,7 @@ export function ProductCard({ product }: { product: Product }) {
   const productLink = product.slug ? `/producto/${product.slug}` : `/producto/${product.id}`
 
   const handleAddToCart = () => {
-    if (outOfStock) return
+    if (isDisabled) return
     addItem({
       id: String(product.id),
       name: product.name,
@@ -66,7 +69,11 @@ export function ProductCard({ product }: { product: Product }) {
 
         {/* Badges */}
         <div className="absolute top-3 left-3 flex flex-col gap-1">
-          {outOfStock ? (
+          {comingSoon ? (
+            <span className="bg-amber-500 text-white text-xs font-semibold px-2 py-1 rounded">
+              Próximamente
+            </span>
+          ) : outOfStock ? (
             <span className="bg-gray-700 text-white text-xs font-semibold px-2 py-1 rounded">
               Agotado
             </span>
@@ -77,8 +84,8 @@ export function ProductCard({ product }: { product: Product }) {
           ) : null}
         </div>
 
-        {/* Overlay when out of stock */}
-        {outOfStock && (
+        {/* Overlay when disabled */}
+        {isDisabled && (
           <div className="absolute inset-0 bg-background/40 pointer-events-none" />
         )}
 
@@ -113,8 +120,12 @@ export function ProductCard({ product }: { product: Product }) {
           </Link>
         </div>
 
-        {/* Add to Cart */}
-        {outOfStock ? (
+        {/* Add to Cart / Disabled State */}
+        {comingSoon ? (
+          <div className="absolute bottom-0 left-0 right-0 bg-amber-500 text-white py-3 flex items-center justify-center gap-2 text-sm font-medium translate-y-full group-hover:translate-y-0 transition-transform duration-300 cursor-not-allowed select-none">
+            Próximo Lanzamiento
+          </div>
+        ) : outOfStock ? (
           <div className="absolute bottom-0 left-0 right-0 bg-muted text-muted-foreground py-3 flex items-center justify-center gap-2 text-sm font-medium translate-y-full group-hover:translate-y-0 transition-transform duration-300 cursor-not-allowed select-none">
             Producto Agotado
           </div>
@@ -133,7 +144,7 @@ export function ProductCard({ product }: { product: Product }) {
       <div className="p-4">
         {/* INVIMA */}
         {product.registroInvima && (
-          <p className="text-[10px] font-mono font-semibold uppercase tracking-wide text-muted-foreground bg-muted px-2 py-0.5 rounded mb-2 truncate" title={product.registroInvima}>
+          <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground bg-muted px-2 py-0.5 rounded mb-2 truncate" title={product.registroInvima}>
             INVIMA: {product.registroInvima}
           </p>
         )}
@@ -143,17 +154,26 @@ export function ProductCard({ product }: { product: Product }) {
           </h3>
         </Link>
         <div className="flex items-center gap-2">
-          <span className={`text-lg font-bold ${outOfStock ? "text-muted-foreground" : "text-primary"}`}>
-            ${product.price.toLocaleString("es-CO")}
-          </span>
-          {product.originalPrice && (
-            <span className="text-sm text-muted-foreground line-through">
-              ${product.originalPrice.toLocaleString("es-CO")}
-            </span>
+          {comingSoon ? (
+            <span className="text-sm font-medium text-amber-600">Precio por confirmar</span>
+          ) : (
+            <>
+              <span className={`text-lg font-bold ${outOfStock ? "text-muted-foreground" : "text-primary"}`}>
+                ${product.price.toLocaleString("es-CO")}
+              </span>
+              {product.originalPrice && (
+                <span className="text-sm text-muted-foreground line-through">
+                  ${product.originalPrice.toLocaleString("es-CO")}
+                </span>
+              )}
+            </>
           )}
         </div>
-        {outOfStock && (
+        {outOfStock && !comingSoon && (
           <p className="text-xs text-destructive font-medium mt-1">Sin stock disponible</p>
+        )}
+        {comingSoon && (
+          <p className="text-xs text-amber-600 font-medium mt-1">¡Disponible muy pronto!</p>
         )}
       </div>
     </div>

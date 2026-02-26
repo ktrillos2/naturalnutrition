@@ -31,7 +31,7 @@ export function ProductClient({ product, featuredProducts }: { product: any; fea
     }
 
     const handleAddToCart = () => {
-        if (!product || outOfStock) return
+        if (!product || outOfStock || comingSoon) return
 
         for (let i = 0; i < quantity; i++) {
             addItem({
@@ -45,6 +45,8 @@ export function ProductClient({ product, featuredProducts }: { product: any; fea
     }
 
     const outOfStock = product.stock !== undefined && product.stock !== null && product.stock <= 0
+    const comingSoon = product.proximoLanzamiento === true
+    const isDisabled = outOfStock || comingSoon
 
     const discount = product.originalPrice
         ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
@@ -115,44 +117,69 @@ export function ProductClient({ product, featuredProducts }: { product: any; fea
                     <div className="flex flex-col gap-2 mb-4">
                         <p className="text-sm text-accent font-medium uppercase tracking-wide">{product.category}</p>
                     </div>
-                    <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-4">{product.name}</h1>
+                    <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">{product.name}</h1>
+
+                    {/* INVIMA */}
+                    {product.registroInvima && (
+                        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-4">
+                            Registro INVIMA: {product.registroInvima}
+                        </p>
+                    )}
 
                     <div className="flex items-center gap-3 mb-4 flex-wrap">
-                        <span className={`text-3xl font-bold ${outOfStock ? 'text-muted-foreground' : 'text-primary'}`}>
-                            ${product.price?.toLocaleString("es-CO")}
-                        </span>
-                        {product.originalPrice && (
+                        {comingSoon ? (
                             <>
-                                <span className="text-lg text-muted-foreground line-through">
-                                    ${product.originalPrice.toLocaleString("es-CO")}
+                                <span className="text-lg font-medium text-amber-600">Precio por confirmar</span>
+                                <span className="bg-amber-500 text-white text-sm font-semibold px-3 py-0.5 rounded-full">
+                                    Próximamente
                                 </span>
-                                {!outOfStock && discount && (
-                                    <span className="bg-accent text-accent-foreground text-sm font-semibold px-2 py-0.5 rounded">
-                                        -{discount}%
+                            </>
+                        ) : (
+                            <>
+                                <span className={`text-3xl font-bold ${outOfStock ? 'text-muted-foreground' : 'text-primary'}`}>
+                                    ${product.price?.toLocaleString("es-CO")}
+                                </span>
+                                {product.originalPrice && (
+                                    <>
+                                        <span className="text-lg text-muted-foreground line-through">
+                                            ${product.originalPrice.toLocaleString("es-CO")}
+                                        </span>
+                                        {!outOfStock && discount && (
+                                            <span className="bg-accent text-accent-foreground text-sm font-semibold px-2 py-0.5 rounded">
+                                                -{discount}%
+                                            </span>
+                                        )}
+                                    </>
+                                )}
+                                {outOfStock && (
+                                    <span className="bg-gray-700 text-white text-sm font-semibold px-3 py-0.5 rounded-full">
+                                        Agotado
                                     </span>
                                 )}
                             </>
                         )}
-                        {outOfStock && (
-                            <span className="bg-gray-700 text-white text-sm font-semibold px-3 py-0.5 rounded-full">
-                                Agotado
-                            </span>
-                        )}
                     </div>
-                    {outOfStock && (
+                    {outOfStock && !comingSoon && (
                         <p className="text-sm text-destructive font-medium mb-4">
                             Este producto no tiene stock disponible en este momento.
                         </p>
+                    )}
+                    {comingSoon && (
+                        <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-4">
+                            <p className="text-sm text-amber-800 font-medium">
+                                Este producto está próximo a lanzarse. ¡Mantente atento!
+                            </p>
+                        </div>
                     )}
 
 
 
                     {/* Quantity & Add to Cart */}
                     <div className="flex items-center gap-4 mb-6">
-                        <div className={`flex items-center border rounded-lg ${outOfStock ? 'border-border opacity-40 pointer-events-none' : 'border-border'}`}>
+                        <div className={`flex items-center border rounded-lg ${isDisabled ? 'border-border opacity-40 pointer-events-none' : 'border-border'}`}>
                             <button
                                 onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                                disabled={outOfStock}
+                                disabled={isDisabled}
                                 className="w-10 h-10 flex items-center justify-center hover:bg-muted transition-colors disabled:cursor-not-allowed"
                                 aria-label="Reducir cantidad"
                             >
@@ -161,7 +188,7 @@ export function ProductClient({ product, featuredProducts }: { product: any; fea
                             <span className="w-12 text-center font-medium">{quantity}</span>
                             <button
                                 onClick={() => setQuantity(quantity + 1)}
-                                disabled={outOfStock}
+                                disabled={isDisabled}
                                 className="w-10 h-10 flex items-center justify-center hover:bg-muted transition-colors disabled:cursor-not-allowed"
                                 aria-label="Aumentar cantidad"
                             >
@@ -170,14 +197,16 @@ export function ProductClient({ product, featuredProducts }: { product: any; fea
                         </div>
                         <button
                             onClick={handleAddToCart}
-                            disabled={outOfStock}
-                            className={`flex-1 flex items-center justify-center gap-2 py-3 font-medium rounded-lg transition-colors ${outOfStock
-                                ? 'bg-muted text-muted-foreground cursor-not-allowed'
-                                : 'bg-primary text-primary-foreground hover:bg-primary/90'
+                            disabled={isDisabled}
+                            className={`flex-1 flex items-center justify-center gap-2 py-3 font-medium rounded-lg transition-colors ${comingSoon
+                                ? 'bg-amber-500 text-white cursor-not-allowed'
+                                : outOfStock
+                                    ? 'bg-muted text-muted-foreground cursor-not-allowed'
+                                    : 'bg-primary text-primary-foreground hover:bg-primary/90'
                                 }`}
                         >
                             <ShoppingBagIcon className="w-5 h-5" />
-                            {outOfStock ? 'Producto Agotado' : 'Añadir al Carrito'}
+                            {comingSoon ? 'Próximamente' : outOfStock ? 'Producto Agotado' : 'Añadir al Carrito'}
                         </button>
                         <button
                             onClick={() => toggleFavorite({

@@ -54,6 +54,13 @@ export default defineType({
             title: 'Stock',
             type: 'number',
         }),
+        defineField({
+            name: 'proximoLanzamiento',
+            title: 'Próximo a Lanzamiento',
+            type: 'boolean',
+            description: 'Activa esta opción para mostrar el producto como "Próximo a Lanzamiento". No se podrá comprar.',
+            initialValue: false,
+        }),
 
         // Specialized fields extracted from description
         defineField({
