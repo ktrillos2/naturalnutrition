@@ -60,11 +60,12 @@ export default function CheckoutPage() {
     return dept ? dept.ciudades : []
   }, [selectedDept])
 
+  const subtotal = cartItems.reduce((sum, item) => sum + item.price * (item.quantity || 1), 0)
   const totalItems = cartItems.reduce((sum, item) => sum + (item.quantity || 1), 0)
   const shippingBatches = Math.ceil(totalItems / 5) || 1
   const baseShipping = selectedCity.toLowerCase().includes('bogotá') || selectedCity.toLowerCase().includes('bogota') ? 10000 : 18000
-  const shipping = baseShipping * shippingBatches
-  const subtotal = cartItems.reduce((sum, item) => sum + item.price * (item.quantity || 1), 0)
+  const isFreeShipping = subtotal >= 100000
+  const shipping = isFreeShipping ? 0 : baseShipping * shippingBatches
   const total = subtotal + shipping
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -386,10 +387,12 @@ export default function CheckoutPage() {
                       <span className="text-foreground">${shipping.toLocaleString("es-CO")}</span>
                     </div>
                     <p className="text-[11px] text-muted-foreground">
-                      {selectedCity ? (
+                      {isFreeShipping ? (
+                        <span className="text-green-600 font-medium">¡Envío gratis por tu compra mayor a $100.000!</span>
+                      ) : selectedCity ? (
                         <>Bogotá: $10.000 · Fuera de Bogotá: $18.000 (hasta 5 productos){shippingBatches > 1 ? ` × ${shippingBatches}` : ''}</>
                       ) : (
-                        <>Selecciona una ciudad para calcular el envío</>
+                        <>Selecciona una ciudad para calcular el envío (Gratis en compras superiores a $100.000)</>
                       )}
                     </p>
                     <div className="flex justify-between text-lg font-semibold pt-2 border-t border-border">
