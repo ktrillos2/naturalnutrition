@@ -15,12 +15,16 @@ interface Product {
   image: any
   badge?: string
   slug?: string
+  stock?: number
+  registroInvima?: string
 }
 
 export function ProductCard({ product }: { product: Product }) {
   const { addItem } = useCart()
   const { toggleFavorite, isFavorite } = useFavorites()
   const isFav = isFavorite(String(product.id))
+
+  const outOfStock = product.stock !== undefined && product.stock !== null && product.stock <= 0
 
   const discount = product.originalPrice
     ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
@@ -29,6 +33,7 @@ export function ProductCard({ product }: { product: Product }) {
   const productLink = product.slug ? `/producto/${product.slug}` : `/producto/${product.id}`
 
   const handleAddToCart = () => {
+    if (outOfStock) return
     addItem({
       id: String(product.id),
       name: product.name,
@@ -59,11 +64,22 @@ export function ProductCard({ product }: { product: Product }) {
           )}
         </Link>
 
-        {/* Badge */}
-        {discount && (
-          <span className="absolute top-3 left-3 bg-accent text-accent-foreground text-xs font-semibold px-2 py-1 rounded">
-            -{discount}%
-          </span>
+        {/* Badges */}
+        <div className="absolute top-3 left-3 flex flex-col gap-1">
+          {outOfStock ? (
+            <span className="bg-gray-700 text-white text-xs font-semibold px-2 py-1 rounded">
+              Agotado
+            </span>
+          ) : discount ? (
+            <span className="bg-accent text-accent-foreground text-xs font-semibold px-2 py-1 rounded">
+              -{discount}%
+            </span>
+          ) : null}
+        </div>
+
+        {/* Overlay when out of stock */}
+        {outOfStock && (
+          <div className="absolute inset-0 bg-background/40 pointer-events-none" />
         )}
 
         {/* Actions */}
@@ -98,30 +114,47 @@ export function ProductCard({ product }: { product: Product }) {
         </div>
 
         {/* Add to Cart */}
-        <button
-          onClick={handleAddToCart}
-          className="absolute bottom-0 left-0 right-0 bg-primary text-primary-foreground py-3 flex items-center justify-center gap-2 text-sm font-medium translate-y-full group-hover:translate-y-0 transition-transform duration-300 cursor-pointer"
-        >
-          <ShoppingBagIcon className="w-4 h-4" />
-          Añadir al Carrito
-        </button>
+        {outOfStock ? (
+          <div className="absolute bottom-0 left-0 right-0 bg-muted text-muted-foreground py-3 flex items-center justify-center gap-2 text-sm font-medium translate-y-full group-hover:translate-y-0 transition-transform duration-300 cursor-not-allowed select-none">
+            Producto Agotado
+          </div>
+        ) : (
+          <button
+            onClick={handleAddToCart}
+            className="absolute bottom-0 left-0 right-0 bg-primary text-primary-foreground py-3 flex items-center justify-center gap-2 text-sm font-medium translate-y-full group-hover:translate-y-0 transition-transform duration-300 cursor-pointer"
+          >
+            <ShoppingBagIcon className="w-4 h-4" />
+            Añadir al Carrito
+          </button>
+        )}
       </div>
 
       {/* Info */}
       <div className="p-4">
+        {/* INVIMA */}
+        {product.registroInvima && (
+          <p className="text-[10px] font-mono font-semibold uppercase tracking-wide text-muted-foreground bg-muted px-2 py-0.5 rounded mb-2 truncate" title={product.registroInvima}>
+            INVIMA: {product.registroInvima}
+          </p>
+        )}
         <Link href={productLink}>
           <h3 className="text-sm font-medium text-foreground hover:text-primary transition-colors line-clamp-2 mb-2">
             {product.name}
           </h3>
         </Link>
         <div className="flex items-center gap-2">
-          <span className="text-lg font-bold text-primary">${product.price.toLocaleString("es-CO")}</span>
+          <span className={`text-lg font-bold ${outOfStock ? "text-muted-foreground" : "text-primary"}`}>
+            ${product.price.toLocaleString("es-CO")}
+          </span>
           {product.originalPrice && (
             <span className="text-sm text-muted-foreground line-through">
               ${product.originalPrice.toLocaleString("es-CO")}
             </span>
           )}
         </div>
+        {outOfStock && (
+          <p className="text-xs text-destructive font-medium mt-1">Sin stock disponible</p>
+        )}
       </div>
     </div>
   )

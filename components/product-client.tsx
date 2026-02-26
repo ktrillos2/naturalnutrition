@@ -31,37 +31,20 @@ export function ProductClient({ product, featuredProducts }: { product: any; fea
     }
 
     const handleAddToCart = () => {
-        if (!product) return
-
-        // Add item multiple times based on quantity
-        // Simple implementation: loop. Better implementation: update context to support adding quantity.
-        // My context addItem adds 1 if exists, or creates new.
-        // I should update context or just loop here.
-        // Context `addItem` logic: "if existing... quantity + 1"
-        // Let's modify context to accept quantity or just call it N times.
-        // Or better, checking context implementation...
-        // Context: `return [...current, { ...newItem, quantity: 1 }]` or `quantity: item.quantity + 1`
-        // It increments by 1. I should probably update `addItem` to take quantity, but for now I will loop or call updateQuantity after adding.
-        // Actually, let's just make it simple for the user and call addItem `quantity` times or modify context. 
-        // Modifying context is cleaner but I can't do it in this turn easily without context switch.
-        // I will just add it once and then update quantity if possible, or loop.
-        // Actually, let's just loop for now, it's safe enough for small quantities.
-
-        // wait, I can just use a helper.
-        // Let's try to add it once, then immediately update quantity if it was a new item.
-        // But `addItem` doesn't return ID or reference easily.
-        // Okay, I'll update `components/cart-provider.tsx` in a future step if needed, but for now I'll just call addItem 'quantity' times.
+        if (!product || outOfStock) return
 
         for (let i = 0; i < quantity; i++) {
             addItem({
-                id: product.sku || product._id || product.name, // Use SKU or ID
+                id: product.sku || product._id || product.name,
                 name: product.name,
                 price: product.price,
-                image: product.images?.[0] ? urlFor(product.images[0]).quality(80).auto('format').url() : "/placeholder.svg", // Use optimized URL for cart
+                image: product.images?.[0] ? urlFor(product.images[0]).quality(80).auto('format').url() : "/placeholder.svg",
                 slug: product.slug
             })
         }
     }
+
+    const outOfStock = product.stock !== undefined && product.stock !== null && product.stock <= 0
 
     const discount = product.originalPrice
         ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
@@ -134,45 +117,67 @@ export function ProductClient({ product, featuredProducts }: { product: any; fea
                     </div>
                     <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-4">{product.name}</h1>
 
-                    <div className="flex items-center gap-3 mb-4">
-                        <span className="text-3xl font-bold text-primary">${product.price?.toLocaleString("es-CO")}</span>
+                    <div className="flex items-center gap-3 mb-4 flex-wrap">
+                        <span className={`text-3xl font-bold ${outOfStock ? 'text-muted-foreground' : 'text-primary'}`}>
+                            ${product.price?.toLocaleString("es-CO")}
+                        </span>
                         {product.originalPrice && (
                             <>
                                 <span className="text-lg text-muted-foreground line-through">
                                     ${product.originalPrice.toLocaleString("es-CO")}
                                 </span>
-                                <span className="bg-accent text-accent-foreground text-sm font-semibold px-2 py-0.5 rounded">
-                                    -{discount}%
-                                </span>
+                                {!outOfStock && discount && (
+                                    <span className="bg-accent text-accent-foreground text-sm font-semibold px-2 py-0.5 rounded">
+                                        -{discount}%
+                                    </span>
+                                )}
                             </>
                         )}
+                        {outOfStock && (
+                            <span className="bg-gray-700 text-white text-sm font-semibold px-3 py-0.5 rounded-full">
+                                Agotado
+                            </span>
+                        )}
                     </div>
+                    {outOfStock && (
+                        <p className="text-sm text-destructive font-medium mb-4">
+                            Este producto no tiene stock disponible en este momento.
+                        </p>
+                    )}
 
 
 
                     {/* Quantity & Add to Cart */}
                     <div className="flex items-center gap-4 mb-6">
-                        <div className="flex items-center border border-border rounded-lg">
+                        <div className={`flex items-center border rounded-lg ${outOfStock ? 'border-border opacity-40 pointer-events-none' : 'border-border'}`}>
                             <button
                                 onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                                className="w-10 h-10 flex items-center justify-center hover:bg-muted transition-colors"
+                                disabled={outOfStock}
+                                className="w-10 h-10 flex items-center justify-center hover:bg-muted transition-colors disabled:cursor-not-allowed"
+                                aria-label="Reducir cantidad"
                             >
                                 <MinusIcon className="w-4 h-4" />
                             </button>
                             <span className="w-12 text-center font-medium">{quantity}</span>
                             <button
                                 onClick={() => setQuantity(quantity + 1)}
-                                className="w-10 h-10 flex items-center justify-center hover:bg-muted transition-colors"
+                                disabled={outOfStock}
+                                className="w-10 h-10 flex items-center justify-center hover:bg-muted transition-colors disabled:cursor-not-allowed"
+                                aria-label="Aumentar cantidad"
                             >
                                 <PlusIcon className="w-4 h-4" />
                             </button>
                         </div>
                         <button
                             onClick={handleAddToCart}
-                            className="flex-1 flex items-center justify-center gap-2 py-3 bg-primary text-primary-foreground font-medium rounded-lg hover:bg-primary/90 transition-colors"
+                            disabled={outOfStock}
+                            className={`flex-1 flex items-center justify-center gap-2 py-3 font-medium rounded-lg transition-colors ${outOfStock
+                                ? 'bg-muted text-muted-foreground cursor-not-allowed'
+                                : 'bg-primary text-primary-foreground hover:bg-primary/90'
+                                }`}
                         >
                             <ShoppingBagIcon className="w-5 h-5" />
-                            Añadir al Carrito
+                            {outOfStock ? 'Producto Agotado' : 'Añadir al Carrito'}
                         </button>
                         <button
                             onClick={() => toggleFavorite({

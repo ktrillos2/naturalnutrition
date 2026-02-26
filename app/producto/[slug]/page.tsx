@@ -20,7 +20,8 @@ async function getProduct(slug: string) {
     "modoDeUso": modoDeUso,
     "contraindicaciones": contraindicaciones,
     "beneficios": beneficios,
-    "specifications": specifications
+    "specifications": specifications,
+    stock
   }`, { slug })
 }
 
@@ -31,7 +32,8 @@ async function getRelatedProducts(currentId: string) {
         "slug": slug.current,
         price,
         "originalPrice": precioRegular,
-        "image": images[0]
+        "image": images[0],
+        stock
     }`, { currentId })
 }
 
@@ -42,7 +44,8 @@ async function getFeaturedProducts() {
         "slug": slug.current,
         price,
         "originalPrice": precioRegular,
-        "image": images[0]
+        "image": images[0],
+        stock
     }`)
 }
 
