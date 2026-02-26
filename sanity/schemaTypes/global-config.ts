@@ -27,6 +27,13 @@ export default defineType({
                     description: 'Texto que aparece en la barra superior (ej. Envíos a todo el país...)'
                 }),
                 defineField({
+                    name: 'notificationEmail',
+                    title: 'Correo de Notificaciones',
+                    type: 'string',
+                    description: 'Correo electrónico al cual se enviarán las notificaciones de pedidos y mensajes de contacto',
+                    validation: (Rule) => Rule.email().error('Debe ser un correo electrónico válido'),
+                }),
+                defineField({
                     name: 'footerDescription',
                     title: 'Descripción Footer',
                     type: 'text',

@@ -15,7 +15,7 @@ export async function POST(req: Request) {
 
         // Fetch Admin Email from Sanity
         const globalConfig = await client.fetch(`*[_type == "globalConfig"][0]{ content }`);
-        const adminEmail = globalConfig?.content?.contactInfo?.emails?.[0] || 'naturalnutricion@gmail.com';
+        const adminEmail = globalConfig?.content?.notificationEmail || 'ntrlnutrition@gmail.com';
 
         // Send Email to Admin
         const { data, error } = await resend.emails.send({

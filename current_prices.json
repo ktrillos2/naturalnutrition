@@ -1,0 +1,318 @@
+[dotenv@17.2.3] injecting env (7) from .env.local -- tip: 🛠️  run anywhere with `dotenvx run -- yourcommand`
+[
+  {
+    "name": "Biotina + Zinc 60 softgels",
+    "price": 20000,
+    "slug": "biotina-zinc-60-softgels"
+  },
+  {
+    "name": "Calmazinc + Vitamina D 60 Tab",
+    "price": 20000,
+    "slug": "calmazinc-vitamina-d-60-tab"
+  },
+  {
+    "name": "Coffe Boost",
+    "price": 20000,
+    "slug": "coffe-boost"
+  },
+  {
+    "name": "Colágeno Hidrolizado Marino",
+    "price": 20000,
+    "slug": "colageno-hidrolizado-marino"
+  },
+  {
+    "name": "Combo 3",
+    "price": 20000,
+    "slug": "combo-3"
+  },
+  {
+    "name": "Combo 4",
+    "price": 20000,
+    "slug": "combo-4"
+  },
+  {
+    "name": "Combo 5",
+    "price": 20000,
+    "slug": "combo-5"
+  },
+  {
+    "name": "Combo 7",
+    "price": 20000,
+    "slug": "combo-7"
+  },
+  {
+    "name": "Gingko Biloba 60 Softgels",
+    "price": 20000,
+    "slug": "gingko-biloba-60-softgels"
+  },
+  {
+    "name": "Omega 3+6+9",
+    "price": 20000,
+    "slug": "omega-3-6-9"
+  },
+  {
+    "name": "Vitamina E + Selenium 60 Softgels",
+    "price": 20000,
+    "slug": "vitamina-e-selenium-60-softgels"
+  },
+  {
+    "name": "Vitamina E + Selenium 90 Softgels",
+    "price": 20000,
+    "slug": "vitamina-e-selenium-90-softgels"
+  },
+  {
+    "name": "Vitamina E 60 Softgels",
+    "price": 20000,
+    "slug": "vitamina-e-60-softgels"
+  },
+  {
+    "name": "Vitamina E 90 Softgels",
+    "price": 20000,
+    "slug": "vitamina-e-90-softgels"
+  },
+  {
+    "name": "Calmagzinc + Vitamina D 60 Tab",
+    "price": 20000,
+    "slug": "calmagzinc-vitamina-d-60-tab"
+  },
+  {
+    "name": "Calcio Magnesio y Zinc + Vitamina D3 - x100",
+    "price": 57500,
+    "slug": "calcio-magnesio-y-zinc-vitamina-d3-x100"
+  },
+  {
+    "name": "Calcio Magnesio y Zinc + Vitamina D3 - 2x1 60 tabletas",
+    "price": 57500,
+    "slug": "calcio-magnesio-y-zinc-vitamina-d3-2x1-60-tabletas"
+  },
+  {
+    "name": "Ginkgo Biloba 60 Softgels",
+    "price": 20000,
+    "slug": "ginkgo-biloba-60-softgels"
+  },
+  {
+    "name": "Vitamina E 400 UI Plus Selenium 60 Softgels",
+    "price": 20000,
+    "slug": "vitamina-e-400-ui-plus-selenium-60-softgels"
+  },
+  {
+    "name": "Vitamina E 400 UI Plus Selenium 90 Softgels",
+    "price": 20000,
+    "slug": "vitamina-e-400-ui-plus-selenium-90-softgels"
+  },
+  {
+    "name": "MELATONINA NATURAL NUTRITION - x60",
+    "price": 45080,
+    "slug": "melatonina-natural-nutrition-x60"
+  },
+  {
+    "name": "Calcio Magnesio y Zinc + Vitamina D3 - x60",
+    "price": 34500,
+    "slug": "calcio-magnesio-y-zinc-vitamina-d3-x60"
+  },
+  {
+    "name": "MELATONIN NATURAL NUTRITION - x60",
+    "price": 45080,
+    "slug": "melatonin-natural-nutrition-x60"
+  },
+  {
+    "name": "Calostro Bovino - x60",
+    "price": 57960,
+    "slug": "calostro-bovino-x60"
+  },
+  {
+    "name": "BIOTINA 900 mcg + COLÁGENO 200 mg - x60",
+    "price": 47250,
+    "slug": "biotina-900-mcg-colageno-200-mg-x60"
+  },
+  {
+    "name": "Vitagomitas For Kids - x60",
+    "price": 32200,
+    "slug": "vitagomitas-for-kids-x60"
+  },
+  {
+    "name": "Vitamina E 1000 UI Plus Zinc - frasco 60",
+    "price": 54096,
+    "slug": "vitamina-e-1000-ui-plus-zinc-frasco-60"
+  },
+  {
+    "name": "Vitamina E 1000 UI Plus Zinc - blíster 30",
+    "price": 28000,
+    "slug": "vitamina-e-1000-ui-plus-zinc-blister-30"
+  },
+  {
+    "name": "Biotina 900 mcg + Zinc - 120",
+    "price": 90850,
+    "slug": "biotina-900-mcg-zinc-120"
+  },
+  {
+    "name": "Lecitina de Soya - Soy Lecithin 1200mg - x60",
+    "price": 45900,
+    "slug": "lecitina-de-soya-soy-lecithin-1200mg-x60"
+  },
+  {
+    "name": "Multivitamin With Minerals Premium - x 60",
+    "price": 51520,
+    "slug": "multivitamin-with-minerals-premium-x-60"
+  },
+  {
+    "name": "Combo 1",
+    "price": 20000,
+    "slug": "combo-1"
+  },
+  {
+    "name": "Combo 2",
+    "price": 20000,
+    "slug": "combo-2"
+  },
+  {
+    "name": "Combo 6",
+    "price": 20000,
+    "slug": "combo-6"
+  },
+  {
+    "name": "Aloe Vera + Coenzima Q10 - x60",
+    "price": 55400,
+    "slug": "aloe-vera-coenzima-q10-x60"
+  },
+  {
+    "name": "Oxigeno Liquido - x60ML",
+    "price": 80000,
+    "slug": "oxigeno-liquido-x60ml"
+  },
+  {
+    "name": "Omega 3 Plus Vitamin E - x60",
+    "price": 31360,
+    "slug": "omega-3-plus-vitamin-e-x60"
+  },
+  {
+    "name": "Omega 3 Plus Vitamin E - DUO",
+    "price": 57960,
+    "slug": "omega-3-plus-vitamin-e-duo"
+  },
+  {
+    "name": "Cloruro de Magnesio + Colágeno + Vitamina D3 - x60",
+    "price": 37408,
+    "slug": "cloruro-de-magnesio-colageno-vitamina-d3-x60"
+  },
+  {
+    "name": "Vitamina E 1000 UI Plus Zinc - frasco 90",
+    "price": 77280,
+    "slug": "vitamina-e-1000-ui-plus-zinc-frasco-90"
+  },
+  {
+    "name": "Biotina 900 mcg + Zinc - 60",
+    "price": 45100,
+    "slug": "biotina-900-mcg-zinc-60"
+  },
+  {
+    "name": "Biotina 900 mcg + Zinc - 90",
+    "price": 77300,
+    "slug": "biotina-900-mcg-zinc-90"
+  },
+  {
+    "name": "Calcio Magnesio y Zinc + Vitamina D - x100",
+    "price": 57500,
+    "slug": "calcio-magnesio-y-zinc-vitamina-d-x100"
+  },
+  {
+    "name": "Multivitamin With Minerals Premium - blíster x 30",
+    "price": 25800,
+    "slug": "multivitamin-with-minerals-premium-blister-x-30"
+  },
+  {
+    "name": "Te Verde Natural Nutrition (20 bolsas de Té Verde) - 800g",
+    "price": 30000,
+    "slug": "te-verde-natural-nutrition-20-bolsas-de-te-verde-800g"
+  },
+  {
+    "name": "Te Rojo Natural Nutrition (20 bolsas de Té Rojo) - 800g",
+    "price": 30000,
+    "slug": "te-rojo-natural-nutrition-20-bolsas-de-te-rojo-800g"
+  },
+  {
+    "name": "Te Negro Natural Nutrition (20 bolsas de Té Negro) - 800g",
+    "price": 30000,
+    "slug": "te-negro-natural-nutrition-20-bolsas-de-te-negro-800g"
+  },
+  {
+    "name": "Te Azul Natural Nutrition (20 bolsas de Té Azul) - 800g",
+    "price": 30000,
+    "slug": "te-azul-natural-nutrition-20-bolsas-de-te-azul-800g"
+  },
+  {
+    "name": "Te Blanco Natural Nutrition (20 bolsas de Té Blanco) - 800g",
+    "price": 30000,
+    "slug": "te-blanco-natural-nutrition-20-bolsas-de-te-blanco-800g"
+  },
+  {
+    "name": "Te Amarillo Natural Nutrition (20 bolsas de Té Amarillo) - 20 Sobres",
+    "price": 30500,
+    "slug": "te-amarillo-natural-nutrition-20-bolsas-de-te-amarillo-20-sobres"
+  },
+  {
+    "name": "Vitamina E 1000 UI Plus Zinc 60 Softgels",
+    "price": 20000,
+    "slug": "vitamina-e-1000-ui-plus-zinc-60-softgels"
+  },
+  {
+    "name": "Vitamina E 1000 UI Plus Zinc 90 Softgels",
+    "price": 20000,
+    "slug": "vitamina-e-1000-ui-plus-zinc-90-softgels"
+  },
+  {
+    "name": "Korean Ginseng - (Panax Ginseng) 100 mg - x60",
+    "price": 51500,
+    "slug": "korean-ginseng-panax-ginseng-100-mg-x60"
+  },
+  {
+    "name": "Ginkgo Biloba - x60",
+    "price": 50200,
+    "slug": "ginkgo-biloba-x60"
+  },
+  {
+    "name": "Ginkgo Biloba - x90",
+    "price": 66900,
+    "slug": "ginkgo-biloba-x90"
+  },
+  {
+    "name": "Aloe Vera + Vitamina E - x60",
+    "price": 53500,
+    "slug": "aloe-vera-vitamina-e-x60"
+  },
+  {
+    "name": "Colágeno Hidrolizado Premium X 473 ml - x473ml",
+    "price": 103000,
+    "slug": "colageno-hidrolizado-premium-x-473-ml-x473ml"
+  },
+  {
+    "name": "Betacarotene \"Vitamina A 5.000 IU\" - x100",
+    "price": 38650,
+    "slug": "betacarotene-vitamina-a-5-000-iu-x100"
+  },
+  {
+    "name": "Lecitina de Soya - Soy Lecithin 1200mg - DUO",
+    "price": 88000,
+    "slug": "lecitina-de-soya-soy-lecithin-1200mg-duo"
+  },
+  {
+    "name": "Calcio Magnesio y Zinc + Vitamina D - 2x1 60 tabletas",
+    "price": 57500,
+    "slug": "calcio-magnesio-y-zinc-vitamina-d-2x1-60-tabletas"
+  },
+  {
+    "name": "Calcio Magnesio y Zinc + Vitamina D - x60",
+    "price": 34500,
+    "slug": "calcio-magnesio-y-zinc-vitamina-d-x60"
+  },
+  {
+    "name": "Balanced B-Complex - x 100",
+    "price": 45000,
+    "slug": "balanced-b-complex-x-100"
+  },
+  {
+    "name": "Multivitamin With Minerals Premium - x 90",
+    "price": 77280,
+    "slug": "multivitamin-with-minerals-premium-x-90"
+  }
+]

@@ -40,7 +40,7 @@ export async function POST(req: Request) {
 
         // 2. Fetch Admin Email from Sanity
         const globalConfig = await client.fetch(`*[_type == "globalConfig"][0]{ content }`);
-        const adminEmail = globalConfig?.content?.contactInfo?.emails?.[0] || 'naturalnutricion@gmail.com';
+        const adminEmail = globalConfig?.content?.notificationEmail || 'ntrlnutrition@gmail.com';
 
         // 3. Create Order in Sanity (on approved payments)
         if (status === 'approved') {

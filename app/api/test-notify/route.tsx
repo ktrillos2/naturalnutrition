@@ -18,7 +18,7 @@ const writeClient = createClient({
 export async function GET() {
     try {
         const globalConfig = await client.fetch(`*[_type == "globalConfig"][0]{ content }`);
-        const adminEmail = globalConfig?.content?.contactInfo?.emails?.[0] || 'naturalnutricion@gmail.com';
+        const adminEmail = globalConfig?.content?.notificationEmail || 'ntrlnutrition@gmail.com';
 
         const testItems = [
             { title: "Calcio Magnesio y Zinc + Vitamina D3", quantity: 1, price: 57500 },
