@@ -36,7 +36,7 @@ export async function POST(req: Request) {
                 name: payer?.name || "Usuario",
                 surname: payer?.surname || "K&T",
                 // EN PRODUCCIÓN: Intenta usar el email real del cliente siempre que sea posible.
-                email: payer?.email || "cliente@email.com", 
+                email: payer?.email || "cliente@email.com",
                 phone: {
                     area_code: "57",
                     number: payer?.phone || "3000000000",
@@ -54,10 +54,13 @@ export async function POST(req: Request) {
             },
             auto_return: "approved", // snake_case
             // -----------------------
-            
+
             // binary_mode: true fuerza a que el pago sea aprobado o rechazado de inmediato.
             // Útil si no quieres manejar estados "pendientes" (ej. Efecty/Pago en efectivo).
-            binary_mode: true, 
+            binary_mode: true,
+            metadata: {
+                ciudadExpedicion: payer?.ciudadExpedicion || '',
+            },
         };
 
         const result = await preference.create({ body });

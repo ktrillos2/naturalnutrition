@@ -48,6 +48,7 @@ export default function CheckoutPage() {
     firstName: "",
     lastName: "",
     cedula: "",
+    ciudadExpedicion: "",
     address: "",
     phone: "",
     email: "",
@@ -59,7 +60,10 @@ export default function CheckoutPage() {
     return dept ? dept.ciudades : []
   }, [selectedDept])
 
-  const shipping = 12000
+  const totalItems = cartItems.reduce((sum, item) => sum + (item.quantity || 1), 0)
+  const shippingBatches = Math.ceil(totalItems / 5) || 1
+  const baseShipping = selectedCity.toLowerCase().includes('bogotá') || selectedCity.toLowerCase().includes('bogota') ? 10000 : 18000
+  const shipping = baseShipping * shippingBatches
   const subtotal = cartItems.reduce((sum, item) => sum + item.price * (item.quantity || 1), 0)
   const total = subtotal + shipping
 
@@ -84,6 +88,7 @@ export default function CheckoutPage() {
             email: formData.email,
             phone: formData.phone,
             cedula: formData.cedula,
+            ciudadExpedicion: formData.ciudadExpedicion,
           }
         }),
       });
@@ -218,6 +223,18 @@ export default function CheckoutPage() {
                             onChange={handleInputChange}
                             className="w-full px-4 py-2.5 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                             placeholder="Número de documento"
+                            required
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-foreground mb-1.5">Ciudad de expedición del documento</label>
+                          <input
+                            type="text"
+                            name="ciudadExpedicion"
+                            value={formData.ciudadExpedicion}
+                            onChange={handleInputChange}
+                            className="w-full px-4 py-2.5 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                            placeholder="Ciudad donde fue expedido el documento"
                             required
                           />
                         </div>
@@ -368,6 +385,13 @@ export default function CheckoutPage() {
                       <span className="text-muted-foreground">Envío</span>
                       <span className="text-foreground">${shipping.toLocaleString("es-CO")}</span>
                     </div>
+                    <p className="text-[11px] text-muted-foreground">
+                      {selectedCity ? (
+                        <>Bogotá: $10.000 · Fuera de Bogotá: $18.000 (hasta 5 productos){shippingBatches > 1 ? ` × ${shippingBatches}` : ''}</>
+                      ) : (
+                        <>Selecciona una ciudad para calcular el envío</>
+                      )}
+                    </p>
                     <div className="flex justify-between text-lg font-semibold pt-2 border-t border-border">
                       <span className="text-foreground">Total</span>
                       <span className="text-primary">${total.toLocaleString("es-CO")}</span>

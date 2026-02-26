@@ -37,6 +37,7 @@ export async function POST(req: Request) {
         const customerEmail = payer?.email || 'no-email@example.com';
         const customerName = `${payer?.first_name || ''} ${payer?.last_name || ''}`.trim() || 'Cliente';
         const customerPhone = payer?.phone?.number || '';
+        const ciudadExpedicion = (paymentInfo as any).metadata?.ciudadExpedicion || (paymentInfo as any).metadata?.ciudad_expedicion || '';
 
         // 2. Fetch Admin Email from Sanity
         const globalConfig = await client.fetch(`*[_type == "globalConfig"][0]{ content }`);
@@ -62,6 +63,7 @@ export async function POST(req: Request) {
                     totalPrice: total,
                     status: 'paid',
                     paymentId: String(paymentId),
+                    ciudadExpedicion,
                     createdAt: new Date().toISOString(),
                 });
                 console.log(`Order MP-${paymentId} created in Sanity`);

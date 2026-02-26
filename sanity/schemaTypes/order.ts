@@ -26,6 +26,11 @@ export const order = defineType({
             type: "string",
         }),
         defineField({
+            name: "ciudadExpedicion",
+            title: "Ciudad de Expedición del Documento",
+            type: "string",
+        }),
+        defineField({
             name: "items",
             title: "Productos",
             type: "array",
