@@ -9,7 +9,7 @@ import { createClient } from 'next-sanity';
 const resend = new Resend(process.env.RESEND_API_KEY);
 const mp = new MercadoPagoConfig({ accessToken: process.env.MP_ACCESS_TOKEN! });
 
-// Write client for creating orders in Sanity
+/** Write client for updating orders in Sanity */
 const writeClient = createClient({
     projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID!,
     dataset: process.env.NEXT_PUBLIC_SANITY_DATASET!,
@@ -36,44 +36,69 @@ export async function POST(req: Request) {
         const total = paymentInfo.transaction_amount || 0;
         const customerEmail = payer?.email || 'no-email@example.com';
         const customerName = `${payer?.first_name || ''} ${payer?.last_name || ''}`.trim() || 'Cliente';
-        const customerPhone = payer?.phone?.number || '';
-        const ciudadExpedicion = (paymentInfo as any).metadata?.ciudadExpedicion || (paymentInfo as any).metadata?.ciudad_expedicion || '';
+        const orderNumber = (paymentInfo as any).metadata?.order_number || '';
 
         // 2. Fetch Admin Email from Sanity
         const globalConfig = await client.fetch(`*[_type == "globalConfig"][0]{ content }`);
         const adminEmail = globalConfig?.content?.notificationEmail || 'ntrlnutrition@gmail.com';
 
-        // 3. Create Order in Sanity (on approved payments)
+        // 3. Fetch existing order data for email (shipping, address info)
+        let orderData: any = null;
+        if (orderNumber) {
+            orderData = await writeClient.fetch(
+                `*[_type == "order" && orderNumber == $orderNumber][0]`,
+                { orderNumber }
+            );
+        }
+
+        // 4. Process based on payment status
         if (status === 'approved') {
+            // Update existing order to paid
             try {
-                await writeClient.create({
-                    _type: 'order',
-                    orderNumber: `MP-${paymentId}`,
-                    customerName,
-                    email: customerEmail,
-                    phone: customerPhone,
-                    items: items.map((i: any) => ({
-                        _type: 'object',
-                        _key: `item-${i.id || Math.random().toString(36).slice(2)}`,
-                        productId: i.id || 'N/A',
-                        name: i.title,
-                        quantity: Number(i.quantity),
-                        price: Number(i.unit_price),
-                    })),
-                    totalPrice: total,
-                    status: 'paid',
-                    paymentId: String(paymentId),
-                    ciudadExpedicion,
-                    createdAt: new Date().toISOString(),
-                });
-                console.log(`Order MP-${paymentId} created in Sanity`);
+                if (orderData) {
+                    await writeClient.patch(orderData._id)
+                        .set({
+                            status: 'paid',
+                            paymentId: String(paymentId),
+                        })
+                        .commit();
+                    console.log(`Order ${orderNumber} updated to status: paid`);
+                } else {
+                    // Fallback: create order if not found (backward compatibility)
+                    console.warn(`Order ${orderNumber || 'unknown'} not found in Sanity, creating new one`);
+                    const customerPhone = payer?.phone?.number || '';
+                    const ciudadExpedicion = (paymentInfo as any).metadata?.ciudadExpedicion || (paymentInfo as any).metadata?.ciudad_expedicion || '';
+
+                    await writeClient.create({
+                        _type: 'order',
+                        orderNumber: orderNumber || `MP-${paymentId}`,
+                        customerName,
+                        email: customerEmail,
+                        phone: customerPhone,
+                        ciudadExpedicion,
+                        items: items.map((i: any) => ({
+                            _type: 'object',
+                            _key: `item-${i.id || Math.random().toString(36).slice(2)}`,
+                            productId: i.id || 'N/A',
+                            name: i.title,
+                            quantity: Number(i.quantity),
+                            price: Number(i.unit_price),
+                        })),
+                        totalPrice: total,
+                        status: 'paid',
+                        paymentId: String(paymentId),
+                        createdAt: new Date().toISOString(),
+                    });
+                    console.log(`Fallback order created in Sanity`);
+                }
             } catch (orderErr) {
-                console.error('Error creating order in Sanity:', orderErr);
+                console.error('Error updating/creating order in Sanity:', orderErr);
             }
 
-            // 4. Send emails
+            // Send confirmation emails
             const approvedHtml = await render(<OrderEmail
                 orderId={String(paymentId)}
+                orderNumber={orderNumber || undefined}
                 customerName={customerName}
                 items={items.map((i: any) => ({
                     title: i.title,
@@ -81,27 +106,52 @@ export async function POST(req: Request) {
                     price: Number(i.unit_price)
                 }))}
                 total={total}
+                shipping={orderData?.shipping}
                 status='approved'
+                address={orderData?.address}
+                city={orderData?.city}
+                department={orderData?.department}
             />);
 
             await resend.emails.send({
                 from: process.env.RESEND_FROM_EMAIL || 'Natural Nutrición <onboarding@resend.dev>',
                 to: customerEmail,
-                subject: `¡Pedido Confirmado! #${paymentId}`,
+                subject: `✅ ¡Pedido Confirmado! ${orderNumber || `#${paymentId}`}`,
                 html: approvedHtml
             });
 
             await resend.emails.send({
                 from: process.env.RESEND_FROM_EMAIL || 'Natural Nutrición <onboarding@resend.dev>',
                 to: adminEmail,
-                subject: `Nuevo Pedido #${paymentId} - ${customerName}`,
+                subject: `✅ Pedido Pagado ${orderNumber || `#${paymentId}`} - ${customerName}`,
                 html: approvedHtml
             });
+
         } else if (status === 'rejected' || status === 'cancelled') {
+            // Update existing order to cancelled
+            if (orderData) {
+                try {
+                    await writeClient.patch(orderData._id)
+                        .set({
+                            status: 'cancelled',
+                            paymentId: String(paymentId),
+                        })
+                        .commit();
+                    console.log(`Order ${orderNumber} updated to status: cancelled`);
+                } catch (cancelErr) {
+                    console.error('Error cancelling order in Sanity:', cancelErr);
+                }
+            }
+
             const rejectedHtml = await render(<OrderEmail
                 orderId={String(paymentId)}
+                orderNumber={orderNumber || undefined}
                 customerName={customerName}
-                items={[]}
+                items={items.map((i: any) => ({
+                    title: i.title,
+                    quantity: Number(i.quantity),
+                    price: Number(i.unit_price)
+                }))}
                 total={total}
                 status='rejected'
             />);
@@ -109,7 +159,14 @@ export async function POST(req: Request) {
             await resend.emails.send({
                 from: process.env.RESEND_FROM_EMAIL || 'Natural Nutrición <onboarding@resend.dev>',
                 to: customerEmail,
-                subject: `Problema con tu pedido #${paymentId}`,
+                subject: `❌ Problema con tu pedido ${orderNumber || `#${paymentId}`}`,
+                html: rejectedHtml
+            });
+
+            await resend.emails.send({
+                from: process.env.RESEND_FROM_EMAIL || 'Natural Nutrición <onboarding@resend.dev>',
+                to: adminEmail,
+                subject: `❌ Pago Rechazado ${orderNumber || `#${paymentId}`} - ${customerName}`,
                 html: rejectedHtml
             });
         }

@@ -9,6 +9,7 @@ import Link from "next/link"
 import { useCart } from "@/components/cart-provider"
 import colombiaData from "@/lib/colombia-locations.json"
 import { toast } from "sonner"
+import { CitySearchSelect } from "@/components/city-search-select"
 
 const steps = [
   { id: 1, name: "Envío", icon: TruckIcon },
@@ -90,7 +91,13 @@ export default function CheckoutPage() {
             phone: formData.phone,
             cedula: formData.cedula,
             ciudadExpedicion: formData.ciudadExpedicion,
-          }
+          },
+          shipping: {
+            address: formData.address,
+            department: selectedDept,
+            city: selectedCity,
+            cost: shipping,
+          },
         }),
       });
 
@@ -229,14 +236,12 @@ export default function CheckoutPage() {
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-foreground mb-1.5">Ciudad de expedición del documento</label>
-                          <input
-                            type="text"
-                            name="ciudadExpedicion"
+                          <CitySearchSelect
                             value={formData.ciudadExpedicion}
-                            onChange={handleInputChange}
-                            className="w-full px-4 py-2.5 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-                            placeholder="Ciudad donde fue expedido el documento"
+                            onChange={(city) => setFormData(prev => ({ ...prev, ciudadExpedicion: city }))}
+                            placeholder="Buscar ciudad de expedición..."
                             required
+                            className="w-full px-4 py-2.5 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all bg-background"
                           />
                         </div>
                         <div>
