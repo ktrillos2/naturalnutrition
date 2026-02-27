@@ -395,7 +395,7 @@ export default function CheckoutPage() {
                       {isFreeShipping ? (
                         <span className="text-green-600 font-medium">¡Envío gratis por tu compra mayor a $100.000!</span>
                       ) : selectedCity ? (
-                        <>Bogotá: $10.000 · Fuera de Bogotá: $18.000 (hasta 5 productos){shippingBatches > 1 ? ` × ${shippingBatches}` : ''}</>
+                        <></>
                       ) : (
                         <>Selecciona una ciudad para calcular el envío (Gratis en compras superiores a $100.000)</>
                       )}
