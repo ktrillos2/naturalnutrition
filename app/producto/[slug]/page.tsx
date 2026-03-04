@@ -103,7 +103,7 @@ export default async function ProductPage({ params }: { params: { slug: string }
         <ProductClient product={product} featuredProducts={relatedProducts} />
       </main>
       <Footer data={globalConfig} />
-      <WhatsAppButton />
+      <WhatsAppButton whatsappUrl={globalConfig?.contactInfo?.whatsapp} />
     </div>
   )
 }

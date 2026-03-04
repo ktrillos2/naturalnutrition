@@ -236,7 +236,7 @@ export default async function TiendaPage({
         </div>
       </main>
       <Footer data={configContent} />
-      <WhatsAppButton />
+      <WhatsAppButton whatsappUrl={configContent?.contactInfo?.whatsapp} />
     </div>
   )
 }

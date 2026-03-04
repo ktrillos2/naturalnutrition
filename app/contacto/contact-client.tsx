@@ -221,7 +221,7 @@ export default function ContactClientPage({ globalConfig }: { globalConfig: any 
         </section>
       </main>
       <Footer data={globalConfig} />
-      <WhatsAppButton />
+      <WhatsAppButton whatsappUrl={globalConfig?.contactInfo?.whatsapp} />
     </div>
   )
 }

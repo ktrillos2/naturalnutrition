@@ -51,8 +51,8 @@ export default async function HomePage() {
         <ProductBenefitsSection data={productBenefits} />
         <DistributorSection data={distributor} />
       </main>
-      <Footer data={globalConfig?.content} />
-      <WhatsAppButton />
+      <Footer data={globalConfig} />
+      <WhatsAppButton whatsappUrl={globalConfig?.contactInfo?.whatsapp} />
     </div>
   )
 }

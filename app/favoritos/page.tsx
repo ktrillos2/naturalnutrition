@@ -26,7 +26,7 @@ export default async function FavoritesPage() {
                 </div>
             </main>
             <Footer data={configContent} />
-            <WhatsAppButton />
+            <WhatsAppButton whatsappUrl={configContent?.contactInfo?.whatsapp} />
         </div>
     )
 }

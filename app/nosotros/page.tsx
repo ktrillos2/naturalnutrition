@@ -114,7 +114,7 @@ export default async function NosotrosPage() {
         )}
       </main>
       <Footer data={globalConfig?.content} />
-      <WhatsAppButton />
+      <WhatsAppButton whatsappUrl={globalConfig?.content?.contactInfo?.whatsapp} />
     </div>
   )
 }
