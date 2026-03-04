@@ -41,7 +41,9 @@ export function ProductCard({ product }: { product: Product }) {
       id: String(product.id),
       name: product.name,
       price: product.price,
-      image: product.image,
+      image: typeof product.image === "string"
+        ? product.image
+        : product.image ? urlFor(product.image).quality(80).auto("format").url() : "/placeholder.svg",
       slug: product.slug || String(product.id)
     })
   }

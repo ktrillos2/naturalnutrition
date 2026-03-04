@@ -94,100 +94,102 @@ export async function POST(req: Request) {
 
             const pendingHtml = await render(<OrderEmail
                 orderId=""
-                orderNumber = { orderNumber }
-                customerName = { customerName }
-                items = {
+                orderNumber={orderNumber}
+                customerName={customerName}
+                items={
                     items.map((item: any) => ({
                         title: item.name,
                         quantity: Number(item.quantity || 1),
                         price: Number(item.price),
                     }))
                 }
-                total = { totalPrice }
-                shipping = { shippingCost }
-                status = "pending"
-                address = { shippingData?.address || ""}
-                city = { shippingData?.city || ""
-    }
-                department = { shippingData?.department || ""
-}
+                total={totalPrice}
+                shipping={shippingCost}
+                status="pending"
+                address={shippingData?.address || ""}
+                city={shippingData?.city || ""
+                }
+                department={shippingData?.department || ""
+                }
             />);
 
-// Send to admin (notification email)
-await resend.emails.send({
-    from: process.env.RESEND_FROM_EMAIL || "Natural Nutrición <onboarding@resend.dev>",
-    to: adminEmail,
-    subject: `🕐 Nuevo Pedido Pendiente ${orderNumber} - ${customerName}`,
-    html: pendingHtml,
-});
+            // Send to admin (notification email)
+            await resend.emails.send({
+                from: process.env.RESEND_FROM_EMAIL || "Natural Nutrición <onboarding@resend.dev>",
+                to: adminEmail,
+                subject: `🕐 Nuevo Pedido Pendiente ${orderNumber} - ${customerName}`,
+                html: pendingHtml,
+            });
 
-// Send to customer if email is provided
-if (customerEmail) {
-    await resend.emails.send({
-        from: process.env.RESEND_FROM_EMAIL || "Natural Nutrición <onboarding@resend.dev>",
-        to: customerEmail,
-        subject: `Tu pedido ${orderNumber} ha sido recibido`,
-        html: pendingHtml,
-    });
-}
+            // Send to customer if email is provided
+            if (customerEmail) {
+                await resend.emails.send({
+                    from: process.env.RESEND_FROM_EMAIL || "Natural Nutrición <onboarding@resend.dev>",
+                    to: customerEmail,
+                    subject: `Tu pedido ${orderNumber} ha sido recibido`,
+                    html: pendingHtml,
+                });
+            }
 
-console.log(`Pending notification sent for order ${orderNumber}`);
+            console.log(`Pending notification sent for order ${orderNumber}`);
         } catch (emailErr) {
-    // Don't block the checkout if email fails
-    console.error("Error sending pending notification email:", emailErr);
-}
+            // Don't block the checkout if email fails
+            console.error("Error sending pending notification email:", emailErr);
+        }
 
-// 3. Create MercadoPago preference with order reference in metadata
-const host = req.headers.get("host");
-const protocol = req.headers.get("x-forwarded-proto") || "http";
-const baseUrl = process.env.NEXT_PUBLIC_URL
-    ? process.env.NEXT_PUBLIC_URL.replace(/\/$/, "")
-    : `${protocol}://${host}`;
+        // 3. Create MercadoPago preference with order reference in metadata
+        const host = req.headers.get("host");
+        const protocol = req.headers.get("x-forwarded-proto") || "http";
+        const baseUrl = process.env.NEXT_PUBLIC_URL
+            ? process.env.NEXT_PUBLIC_URL.replace(/\/$/, "")
+            : host
+                ? `${protocol}://${host}`
+                : "http://localhost:3000";
 
-const body = {
-    items: items.map((item: any) => ({
-        id: item.id,
-        title: item.name,
-        quantity: Number(item.quantity || 1),
-        unit_price: Number(item.price),
-        currency_id: "COP",
-        picture_url: item.image,
-    })),
-    payer: {
-        name: payer?.name || "Usuario",
-        surname: payer?.surname || "K&T",
-        email: payer?.email || "cliente@email.com",
-        phone: {
-            area_code: "57",
-            number: payer?.phone || "3000000000",
-        },
-        identification: {
-            type: "CC",
-            number: payer?.cedula || "123456789",
-        },
-    },
-    back_urls: {
-        success: `${baseUrl}/checkout/success`,
-        failure: `${baseUrl}/checkout/failure`,
-        pending: `${baseUrl}/checkout/pending`,
-    },
-    auto_return: "approved",
-    // binary_mode desactivado para permitir pagos en efectivo (pendientes)
-    binary_mode: false,
-    metadata: {
-        order_number: orderNumber,
-        ciudadExpedicion: payer?.ciudadExpedicion || "",
-    },
-};
+        const body = {
+            items: items.map((item: any) => ({
+                id: item.id,
+                title: item.name,
+                quantity: Number(item.quantity || 1),
+                unit_price: Number(item.price),
+                currency_id: "COP",
+                picture_url: typeof item.image === "string" ? item.image : null,
+            })),
+            payer: {
+                name: payer?.name || "Usuario",
+                surname: payer?.surname || "K&T",
+                email: payer?.email || "cliente@email.com",
+                phone: {
+                    area_code: "57",
+                    number: payer?.phone || "3000000000",
+                },
+                identification: {
+                    type: "CC",
+                    number: payer?.cedula || "123456789",
+                },
+            },
+            back_urls: {
+                success: `${baseUrl}/checkout/success`,
+                failure: `${baseUrl}/checkout/failure`,
+                pending: `${baseUrl}/checkout/pending`,
+            },
+            auto_return: "approved",
+            // binary_mode desactivado para permitir pagos en efectivo (pendientes)
+            binary_mode: false,
+            metadata: {
+                order_number: orderNumber,
+                ciudadExpedicion: payer?.ciudadExpedicion || "",
+            },
+        };
 
-const result = await preference.create({ body });
+        const result = await preference.create({ body });
 
-return NextResponse.json({ url: result.init_point, orderNumber });
+        return NextResponse.json({ url: result.init_point, orderNumber });
     } catch (error) {
-    console.error("Error creating preference:", error);
-    return NextResponse.json(
-        { error: "Error creating preference" },
-        { status: 500 }
-    );
-}
+        console.error("Error creating preference:", error);
+        return NextResponse.json(
+            { error: "Error creating preference" },
+            { status: 500 }
+        );
+    }
 }
