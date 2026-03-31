@@ -51,6 +51,10 @@ export async function POST(req: Request) {
             );
         }
 
+        const customerPhoneData = orderData?.phone || payer?.phone?.number || '';
+        const customerDocumentData = payer?.identification?.number ? `${payer.identification.type || 'CC'} ${payer.identification.number}` : '';
+        const ciudadExpedicionData = orderData?.ciudadExpedicion || (paymentInfo as any).metadata?.ciudad_expedicion || (paymentInfo as any).metadata?.ciudadExpedicion || '';
+
         // 4. Process based on payment status
         if (status === 'approved') {
             // Update existing order to paid
@@ -96,7 +100,7 @@ export async function POST(req: Request) {
             }
 
             // Send confirmation emails
-            const approvedHtml = await render(<OrderEmail
+            const adminApprovedHtml = await render(<OrderEmail
                 orderId={String(paymentId)}
                 orderNumber={orderNumber || undefined}
                 customerName={customerName}
@@ -111,20 +115,43 @@ export async function POST(req: Request) {
                 address={orderData?.address}
                 city={orderData?.city}
                 department={orderData?.department}
+                isAdmin={true}
+                customerEmail={customerEmail}
+                customerPhone={customerPhoneData}
+                customerDocument={customerDocumentData}
+                ciudadExpedicion={ciudadExpedicionData}
+            />);
+
+            const customerApprovedHtml = await render(<OrderEmail
+                orderId={String(paymentId)}
+                orderNumber={orderNumber || undefined}
+                customerName={customerName}
+                items={items.map((i: any) => ({
+                    title: i.title,
+                    quantity: Number(i.quantity),
+                    price: Number(i.unit_price)
+                }))}
+                total={total}
+                shipping={orderData?.shipping}
+                status='approved'
+                address={orderData?.address}
+                city={orderData?.city}
+                department={orderData?.department}
+                isAdmin={false}
             />);
 
             await resend.emails.send({
                 from: process.env.RESEND_FROM_EMAIL || 'Natural Nutrición <onboarding@resend.dev>',
                 to: customerEmail,
                 subject: `✅ ¡Pedido Confirmado! ${orderNumber || `#${paymentId}`}`,
-                html: approvedHtml
+                html: customerApprovedHtml
             });
 
             await resend.emails.send({
                 from: process.env.RESEND_FROM_EMAIL || 'Natural Nutrición <onboarding@resend.dev>',
                 to: adminEmail,
                 subject: `✅ Pedido Pagado ${orderNumber || `#${paymentId}`} - ${customerName}`,
-                html: approvedHtml
+                html: adminApprovedHtml
             });
 
         } else if (status === 'rejected' || status === 'cancelled') {
@@ -143,7 +170,7 @@ export async function POST(req: Request) {
                 }
             }
 
-            const rejectedHtml = await render(<OrderEmail
+            const adminRejectedHtml = await render(<OrderEmail
                 orderId={String(paymentId)}
                 orderNumber={orderNumber || undefined}
                 customerName={customerName}
@@ -154,20 +181,39 @@ export async function POST(req: Request) {
                 }))}
                 total={total}
                 status='rejected'
+                isAdmin={true}
+                customerEmail={customerEmail}
+                customerPhone={customerPhoneData}
+                customerDocument={customerDocumentData}
+                ciudadExpedicion={ciudadExpedicionData}
+            />);
+
+            const customerRejectedHtml = await render(<OrderEmail
+                orderId={String(paymentId)}
+                orderNumber={orderNumber || undefined}
+                customerName={customerName}
+                items={items.map((i: any) => ({
+                    title: i.title,
+                    quantity: Number(i.quantity),
+                    price: Number(i.unit_price)
+                }))}
+                total={total}
+                status='rejected'
+                isAdmin={false}
             />);
 
             await resend.emails.send({
                 from: process.env.RESEND_FROM_EMAIL || 'Natural Nutrición <onboarding@resend.dev>',
                 to: customerEmail,
                 subject: `❌ Problema con tu pedido ${orderNumber || `#${paymentId}`}`,
-                html: rejectedHtml
+                html: customerRejectedHtml
             });
 
             await resend.emails.send({
                 from: process.env.RESEND_FROM_EMAIL || 'Natural Nutrición <onboarding@resend.dev>',
                 to: adminEmail,
                 subject: `❌ Pago Rechazado ${orderNumber || `#${paymentId}`} - ${customerName}`,
-                html: rejectedHtml
+                html: adminRejectedHtml
             });
         }
 

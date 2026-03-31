@@ -28,6 +28,11 @@ interface OrderEmailProps {
     address?: string;
     city?: string;
     department?: string;
+    isAdmin?: boolean;
+    customerEmail?: string;
+    customerPhone?: string;
+    customerDocument?: string;
+    ciudadExpedicion?: string;
 }
 
 const COLORS = {
@@ -84,6 +89,11 @@ export const OrderEmail: React.FC<OrderEmailProps> = ({
     address,
     city,
     department,
+    isAdmin,
+    customerEmail,
+    customerPhone,
+    customerDocument,
+    ciudadExpedicion,
 }) => {
     const config = STATUS_CONFIG[status];
     const siteUrl = 'https://naturalnutrition.com.co';
@@ -150,6 +160,61 @@ export const OrderEmail: React.FC<OrderEmailProps> = ({
                                 </Column>
                             </Row>
                         </Section>
+
+                        {/* Admin Billing Box */}
+                        {isAdmin && (customerEmail || customerPhone || customerDocument) && (
+                            <Section style={{ ...shippingBox, borderLeftColor: COLORS.warning, backgroundColor: '#fffdf0', borderRadius: '8px', padding: '16px 20px', marginLeft: 0 }}>
+                                <Text style={{ ...shippingLabel, color: COLORS.warning }}>📄 Datos del Cliente / Facturación</Text>
+                                <Row style={{ marginBottom: '8px' }}>
+                                    <Column style={{ width: '40%' }}>
+                                        <Text style={{ ...billingLabel }}>Nombre:</Text>
+                                    </Column>
+                                    <Column>
+                                        <Text style={{ ...billingValue }}>{customerName}</Text>
+                                    </Column>
+                                </Row>
+                                {customerDocument && (
+                                    <Row style={{ marginBottom: '8px' }}>
+                                        <Column style={{ width: '40%' }}>
+                                            <Text style={{ ...billingLabel }}>Documento:</Text>
+                                        </Column>
+                                        <Column>
+                                            <Text style={{ ...billingValue }}>{customerDocument}</Text>
+                                        </Column>
+                                    </Row>
+                                )}
+                                {customerEmail && (
+                                    <Row style={{ marginBottom: '8px' }}>
+                                        <Column style={{ width: '40%' }}>
+                                            <Text style={{ ...billingLabel }}>Email:</Text>
+                                        </Column>
+                                        <Column>
+                                            <Text style={{ ...billingValue }}>{customerEmail}</Text>
+                                        </Column>
+                                    </Row>
+                                )}
+                                {customerPhone && (
+                                    <Row style={{ marginBottom: '8px' }}>
+                                        <Column style={{ width: '40%' }}>
+                                            <Text style={{ ...billingLabel }}>Teléfono:</Text>
+                                        </Column>
+                                        <Column>
+                                            <Text style={{ ...billingValue }}>{customerPhone}</Text>
+                                        </Column>
+                                    </Row>
+                                )}
+                                {ciudadExpedicion && (
+                                    <Row style={{ marginBottom: '0' }}>
+                                        <Column style={{ width: '40%' }}>
+                                            <Text style={{ ...billingLabel }}>Ciudad Expedición:</Text>
+                                        </Column>
+                                        <Column>
+                                            <Text style={{ ...billingValue }}>{ciudadExpedicion}</Text>
+                                        </Column>
+                                    </Row>
+                                )}
+                            </Section>
+                        )}
 
                         {/* Shipping */}
                         {(address || city || department) && (
@@ -538,4 +603,18 @@ const footerBranding = {
 const footerLink = {
     color: 'rgba(255,255,255,0.7)',
     textDecoration: 'underline',
+};
+
+const billingLabel = {
+    fontSize: '13px',
+    color: COLORS.textSecondary,
+    margin: 0,
+    fontWeight: 600,
+};
+
+const billingValue = {
+    fontSize: '14px',
+    color: COLORS.textPrimary,
+    margin: 0,
+    fontWeight: 500,
 };

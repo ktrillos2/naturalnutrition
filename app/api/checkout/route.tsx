@@ -92,7 +92,7 @@ export async function POST(req: Request) {
             const globalConfig = await readClient.fetch(`*[_type == "globalConfig"][0]{ content }`);
             const adminEmail = globalConfig?.content?.notificationEmail || "ntrlnutrition@gmail.com";
 
-            const pendingHtml = await render(<OrderEmail
+            const adminHtml = await render(<OrderEmail
                 orderId=""
                 orderNumber={orderNumber}
                 customerName={customerName}
@@ -107,10 +107,33 @@ export async function POST(req: Request) {
                 shipping={shippingCost}
                 status="pending"
                 address={shippingData?.address || ""}
-                city={shippingData?.city || ""
+                city={shippingData?.city || ""}
+                department={shippingData?.department || ""}
+                isAdmin={true}
+                customerEmail={customerEmail}
+                customerPhone={payer?.phone || ""}
+                customerDocument={payer?.cedula ? `CC ${payer.cedula}` : ""}
+                ciudadExpedicion={payer?.ciudadExpedicion || ""}
+            />);
+
+            const customerHtml = await render(<OrderEmail
+                orderId=""
+                orderNumber={orderNumber}
+                customerName={customerName}
+                items={
+                    items.map((item: any) => ({
+                        title: item.name,
+                        quantity: Number(item.quantity || 1),
+                        price: Number(item.price),
+                    }))
                 }
-                department={shippingData?.department || ""
-                }
+                total={totalPrice}
+                shipping={shippingCost}
+                status="pending"
+                address={shippingData?.address || ""}
+                city={shippingData?.city || ""}
+                department={shippingData?.department || ""}
+                isAdmin={false}
             />);
 
             // Send to admin (notification email)
@@ -118,7 +141,7 @@ export async function POST(req: Request) {
                 from: process.env.RESEND_FROM_EMAIL || "Natural Nutrición <onboarding@resend.dev>",
                 to: adminEmail,
                 subject: `🕐 Nuevo Pedido Pendiente ${orderNumber} - ${customerName}`,
-                html: pendingHtml,
+                html: adminHtml,
             });
 
             // Send to customer if email is provided
@@ -127,7 +150,7 @@ export async function POST(req: Request) {
                     from: process.env.RESEND_FROM_EMAIL || "Natural Nutrición <onboarding@resend.dev>",
                     to: customerEmail,
                     subject: `Tu pedido ${orderNumber} ha sido recibido`,
-                    html: pendingHtml,
+                    html: customerHtml,
                 });
             }
 
