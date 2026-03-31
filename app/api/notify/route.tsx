@@ -71,6 +71,7 @@ export async function POST(req: Request) {
                     // Fallback: create order if not found (backward compatibility)
                     console.warn(`Order ${orderNumber || 'unknown'} not found in Sanity, creating new one`);
                     const customerPhone = payer?.phone?.number || '';
+                    const customerDocumentNum = payer?.identification?.number ? `${payer.identification.type || 'CC'} ${payer.identification.number}` : "";
                     const ciudadExpedicion = (paymentInfo as any).metadata?.ciudadExpedicion || (paymentInfo as any).metadata?.ciudad_expedicion || '';
 
                     await writeClient.create({
@@ -79,6 +80,7 @@ export async function POST(req: Request) {
                         customerName,
                         email: customerEmail,
                         phone: customerPhone,
+                        cedula: customerDocumentNum,
                         ciudadExpedicion,
                         items: items.map((i: any) => ({
                             _type: 'object',

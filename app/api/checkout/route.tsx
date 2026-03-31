@@ -60,6 +60,7 @@ export async function POST(req: Request) {
                 customerName,
                 email: customerEmail,
                 phone: payer?.phone || "",
+                cedula: payer?.cedula || "",
                 ciudadExpedicion: payer?.ciudadExpedicion || "",
                 address: shippingData?.address || "",
                 department: shippingData?.department || "",
